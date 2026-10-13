@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>跑步打卡 · 跑道笔记</title>
+<meta name="description" content="跑道笔记跑步打卡：记录每次跑步的距离、用时、日期和备注，自动统计总里程与平均配速。">
+
+<!-- 内联 SVG favicon：蓝色圆角底 + 白色跑道分道线 -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231668dc'/%3E%3Cg stroke='white' stroke-width='4' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 50 L30 18'/%3E%3Cpath d='M27 50 L33 18'/%3E%3Cpath d='M40 50 L36 18'/%3E%3Cpath d='M53 50 L39 18'/%3E%3C/g%3E%3C/svg%3E">
+
+<style>
+/* ============================================================
+   跑步打卡页 · 样式（蓝白运动风，与首页保持一致，纯内联无外部资源）
+   ============================================================ */
+:root{
+  --blue:#1668dc; --blue-deep:#0a3d8f; --blue-bright:#3d8bfd;
+  --blue-soft:#eaf2ff; --ink:#16233b; --muted:#5a6b85;
+  --line:#dbe7f7; --bg:#f5f9ff; --white:#fff;
+  --green:#16a34a; --red:#dc2626;
+  --radius:14px; --shadow:0 8px 24px rgba(16,60,130,.08);
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+a{ color:var(--blue); text-decoration:none; }
+.container{ max-width:960px; margin:0 auto; padding:0 20px; }
+
+/* ---------- 顶部 ---------- */
+.site-header{
+  background:linear-gradient(160deg,var(--blue-deep),var(--blue));
+  color:#fff; padding:30px 0 64px; position:relative; overflow:hidden;
+}
+.site-header::after{ /* 底部一条淡淡的跑道透视线 */
+  content:""; position:absolute; left:0; right:0; bottom:0; height:46px;
+  background:
+    linear-gradient(170deg,transparent 46%,rgba(255,255,255,.28) 47%,transparent 49%),
+    linear-gradient(190deg,transparent 46%,rgba(255,255,255,.28) 47%,transparent 49%);
+}
+.header-inner{ display:flex; align-items:center; gap:12px; }
+.header-inner svg{ width:38px; height:38px; flex:none; }
+.header-inner h1{ font-size:22px; font-weight:800; letter-spacing:1px; }
+.header-inner small{ display:block; font-size:12px; font-weight:400; opacity:.8; letter-spacing:2px; }
+.header-sub{ margin-top:14px; font-size:14.5px; opacity:.9; }
+
+/* ---------- 布局：表单 + 记录，桌面左右两栏 ---------- */
+.layout{ display:grid; grid-template-columns:340px 1fr; gap:22px; margin-top:-42px; position:relative; z-index:2; padding-bottom:60px; align-items:start; }
+.card{ background:var(--white); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:24px; }
+.card h2{ font-size:18px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.card h2::before{ content:""; width:5px; height:18px; border-radius:3px; background:var(--blue); }
+
+/* ---------- 表单 ---------- */
+.form-group{ margin-bottom:15px; }
+.form-group label{ display:block; font-size:14px; font-weight:600; margin-bottom:6px; }
+.form-group input{
+  width:100%; height:44px; padding:0 12px; font-size:16px; /* 16px 防止 iOS 聚焦缩放 */
+  border:1.5px solid var(--line); border-radius:10px; background:#fbfdff;
+  color:var(--ink); outline:none; transition:border-color .15s, box-shadow .15s;
+  font-family:inherit;
+}
+.form-group input:focus{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(22,104,220,.12); background:#fff; }
+.form-group textarea{
+  width:100%; min-height:70px; padding:10px 12px; font-size:16px; resize:vertical;
+  border:1.5px solid var(--line); border-radius:10px; background:#fbfdff;
+  color:var(--ink); outline:none; font-family:inherit; transition:border-color .15s, box-shadow .15s;
+}
+.form-group textarea:focus{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(22,104,220,.12); background:#fff; }
+/* 用时：分钟 / 秒两个输入并排 */
+.duration-row{ display:flex; gap:10px; }
+.duration-row .form-group{ flex:1; margin-bottom:15px; }
+.duration-row .unit{ position:relative; }
+.duration-row .unit span{ position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:13px; color:var(--muted); pointer-events:none; }
+.duration-row .unit input{ padding-right:34px; }
+
+.btn-submit{
+  width:100%; height:48px; border:none; border-radius:10px; cursor:pointer;
+  background:var(--blue); color:#fff; font-size:16px; font-weight:700; font-family:inherit;
+  transition:background .15s, transform .15s;
+}
+.btn-submit:hover{ background:var(--blue-bright); }
+.btn-submit:active{ transform:scale(.99); }
+.btn-submit:disabled{ background:#9bb8dd; cursor:not-allowed; }
+.form-msg{ margin-top:12px; font-size:14px; text-align:center; min-height:22px; }
+.form-msg.ok{ color:var(--green); }
+.form-msg.err{ color:var(--red); }
+
+/* ---------- 统计条 ---------- */
+.stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+.stat{ background:var(--blue-soft); border-radius:12px; padding:14px 10px; text-align:center; }
+.stat .num{ font-size:22px; font-weight:800; color:var(--blue-deep); }
+.stat .num small{ font-size:13px; font-weight:600; }
+.stat .label{ font-size:12.5px; color:var(--muted); margin-top:2px; }
+
+/* ---------- 记录列表（桌面表格、窄屏自动堆叠为卡片） ---------- */
+.record-list{ display:flex; flex-direction:column; gap:10px; }
+.record{
+  display:grid; grid-template-columns:104px 84px 84px 84px 1fr; gap:10px; align-items:center;
+  border:1px solid var(--line); border-radius:12px; padding:12px 16px; background:#fbfdff;
+}
+.record.head{ background:var(--blue-soft); border-color:var(--blue-soft); font-size:13px; font-weight:700; color:var(--blue-deep); }
+.record .cell .k{ display:none; } /* 窄屏时显示的字段名，桌面隐藏 */
+.record .date{ font-weight:700; font-size:14.5px; }
+.record .val{ font-size:14.5px; font-variant-numeric:tabular-nums; }
+.record .note{ font-size:13.5px; color:var(--muted); overflow-wrap:anywhere; }
+.empty{ text-align:center; color:var(--muted); font-size:14.5px; padding:44px 10px; border:1.5px dashed var(--line); border-radius:12px; }
+/* 标题右侧的小操作按钮（清空本机记录） */
+.clear-btn{
+  margin-left:auto; font-size:12.5px; font-weight:500; color:var(--muted);
+  background:none; border:1px solid var(--line); border-radius:8px;
+  padding:4px 12px; cursor:pointer; font-family:inherit; transition:color .15s,border-color .15s;
+}
+.clear-btn:hover{ color:var(--red); border-color:var(--red); }
+.local-tip{ font-size:12.5px; color:var(--muted); margin:-6px 0 14px; }
+
+/* ---------- 底部 ---------- */
+.site-footer{ text-align:center; padding:24px 10px 34px; font-size:13px; color:var(--muted); }
+
+/* ---------- 全局轻提示 ---------- */
+.toast{
+  position:fixed; left:50%; bottom:34px; transform:translateX(-50%) translateY(18px);
+  background:var(--ink); color:#fff; padding:11px 24px; border-radius:10px; font-size:14px;
+  opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; z-index:99;
+}
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ============================================================
+   响应式：手机端表单单列铺满、记录行堆叠成卡片
+   ============================================================ */
+@media (max-width:760px){
+  .layout{ grid-template-columns:1fr; }
+  .clear-btn{ min-height:44px; padding:8px 14px; }
+  .record{ grid-template-columns:1fr 1fr; gap:6px 12px; padding:14px 16px; }
+  .record.head{ display:none; } /* 手机端不显示表头，改为每格带字段名 */
+  .record .cell{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+  .record .cell .k{ display:inline; font-size:12.5px; color:var(--muted); }
+  .record .cell.date-cell{ grid-column:1 / -1; border-bottom:1px solid var(--line); padding-bottom:6px; }
+  .record .cell.note-cell{ grid-column:1 / -1; }
+  .record .note{ text-align:right; }
+}
+@media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<!-- ========== 顶部标题 ========== -->
+<header class="site-header">
+  <div class="container">
+    <div class="header-inner">
+      <!-- 跑道 logo（内联 SVG） -->
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="rgba(255,255,255,.16)"/>
+        <g stroke="#fff" stroke-width="4" stroke-linecap="round">
+          <path d="M14 50 L30 18"/><path d="M27 50 L33 18"/>
+          <path d="M40 50 L36 18"/><path d="M53 50 L39 18"/>
+        </g>
+      </svg>
+      <h1>跑步打卡<small>TRACK NOTES · 训练记录</small></h1>
+    </div>
+    <p class="header-sub">记下每一次距离和用时，看见自己一点点变快。数据保存在本机浏览器中。&nbsp;<a href="index.html" style="color:#cfe2ff;text-decoration:underline;">返回首页</a></p>
+  </div>
+</header>
+
+<main class="container layout">
+
+  <!-- ========== 左：打卡表单 ========== -->
+  <section class="card">
+    <h2>新增打卡</h2>
+    <form id="checkinForm" autocomplete="off">
+      <div class="form-group">
+        <label for="runDate">日期</label>
+        <input type="date" id="runDate" required>
+      </div>
+
+      <div class="form-group">
+        <label for="distance">距离（公里）</label>
+        <input type="number" id="distance" min="0.01" max="500" step="0.01" inputmode="decimal" placeholder="例如 3.00" required>
+      </div>
+
+      <!-- 用时：分钟 + 秒，提交时换算成秒 -->
+      <div class="duration-row">
+        <div class="form-group">
+          <label for="minutes">用时（分）</label>
+          <div class="unit"><input type="number" id="minutes" min="0" max="1439" step="1" inputmode="numeric" placeholder="12" required><span>分</span></div>
+        </div>
+        <div class="form-group">
+          <label for="seconds">&nbsp;</label>
+          <div class="unit"><input type="number" id="seconds" min="0" max="59" step="1" inputmode="numeric" placeholder="30"><span>秒</span></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="note">备注（可不填）</label>
+        <textarea id="note" maxlength="200" placeholder="今天状态、天气、课表内容……"></textarea>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">提交打卡</button>
+      <p class="form-msg" id="formMsg"></p>
+    </form>
+  </section>
+
+  <!-- ========== 右：统计 + 记录列表 ========== -->
+  <section>
+    <!-- 汇总统计 -->
+    <div class="stats">
+      <div class="stat"><div class="num" id="statCount">0<small> 次</small></div><div class="label">打卡次数</div></div>
+      <div class="stat"><div class="num" id="statDistance">0<small> km</small></div><div class="label">总里程</div></div>
+      <div class="stat"><div class="num" id="statDuration">0<small> 分</small></div><div class="label">总用时</div></div>
+    </div>
+
+    <div class="card">
+      <h2>打卡记录<button type="button" class="clear-btn" id="clearBtn">清空本机记录</button></h2>
+      <p class="local-tip">记录保存在当前设备的浏览器里，换设备或清除浏览器数据不会同步。</p>
+      <!-- 表头（仅桌面显示） -->
+      <div class="record head">
+        <div>日期</div><div>距离</div><div>用时</div><div>平均配速</div><div>备注</div>
+      </div>
+      <!-- 记录由 JS 渲染 -->
+      <div class="record-list" id="recordList"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  © <span id="year">2026</span> 跑道笔记 · 跑步打卡
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   跑步打卡页 · 前端逻辑（原生 JS，无任何依赖，本地存储版）
+   数据保存在浏览器 localStorage，字段与后端 API 保持一致，
+   以后接入 FastAPI 后端时只需把 loadRecords / addRecord 换成
+   fetch 请求，渲染层不用改。
+   ============================================================ */
+(function(){
+  "use strict";
+
+  // localStorage 键名；字段：id/distance_km/duration_seconds/run_date/note/created_at/pace
+  var STORAGE_KEY = "track_notes_checkins_v1";
+
+  /* ---------- DOM 引用 ---------- */
+  var form       = document.getElementById('checkinForm');
+  var runDateEl  = document.getElementById('runDate');
+  var distanceEl = document.getElementById('distance');
+  var minutesEl  = document.getElementById('minutes');
+  var secondsEl  = document.getElementById('seconds');
+  var noteEl     = document.getElementById('note');
+  var submitBtn  = document.getElementById('submitBtn');
+  var formMsg    = document.getElementById('formMsg');
+  var recordList = document.getElementById('recordList');
+  var toast      = document.getElementById('toast');
+
+  /* ---------- 工具函数 ---------- */
+
+  // 秒数 -> "X分XX秒" / "X时XX分"
+  function formatDuration(totalSec){
+    totalSec = Math.round(totalSec);
+    var h = Math.floor(totalSec / 3600);
+    var m = Math.floor((totalSec % 3600) / 60);
+    var s = totalSec % 60;
+    if(h > 0) return h + "时" + String(m).padStart(2,'0') + "分";
+    return m + "分" + String(s).padStart(2,'0') + "秒";
+  }
+
+  // 配速（秒/公里）-> "M'SS\"/km"
+  function formatPace(secPerKm){
+    secPerKm = Math.round(secPerKm);
+    var m = Math.floor(secPerKm / 60);
+    var s = secPerKm % 60;
+    return m + "'" + String(s).padStart(2,'0') + '"/km';
+  }
+
+  // 简单 HTML 转义，防止备注里的特殊字符破坏页面
+  function escapeHtml(str){
+    return String(str == null ? "" : str)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function(){ toast.classList.remove('show'); }, 2200);
+  }
+
+  function setFormMsg(text, type){
+    formMsg.textContent = text || "";
+    formMsg.className = "form-msg" + (type ? " " + type : "");
+  }
+
+  /* ---------- 本地存储数据层（localStorage） ---------- */
+
+  // 读取全部记录；浏览器不支持或数据损坏时安全降级为空数组
+  function getAll(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function saveAll(items){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  }
+
+  // 新增一条记录，返回带 id / 时间 / 配速的完整对象
+  function addRecord(payload){
+    var items = getAll();
+    var nextId = items.reduce(function(m, it){ return Math.max(m, it.id || 0); }, 0) + 1;
+    var d = new Date();
+    var pad = function(n){ return String(n).padStart(2,'0'); };
+    var item = {
+      id: nextId,
+      distance_km: payload.distance_km,
+      duration_seconds: payload.duration_seconds,
+      run_date: payload.run_date,
+      note: payload.note,
+      created_at: d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())
+        +" "+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds()),
+      pace_seconds_per_km: Math.round(payload.duration_seconds / payload.distance_km * 10) / 10
+    };
+    items.push(item);
+    saveAll(items);
+    return item;
+  }
+
+  /* ---------- 读取并渲染全部记录（按日期倒序） ---------- */
+  function loadRecords(){
+    var items = getAll().slice().sort(function(a, b){
+      if(a.run_date === b.run_date) return (b.id || 0) - (a.id || 0);
+      return a.run_date < b.run_date ? 1 : -1;
+    });
+    renderStats(items);
+    renderRecords(items);
+  }
+
+  // 顶部三项汇总
+  function renderStats(items){
+    var totalKm = 0, totalSec = 0;
+    items.forEach(function(it){
+      totalKm += it.distance_km;
+      totalSec += it.duration_seconds;
+    });
+    document.getElementById('statCount').innerHTML    = items.length + '<small> 次</small>';
+    document.getElementById('statDistance').innerHTML = totalKm.toFixed(2) + '<small> km</small>';
+    document.getElementById('statDuration').innerHTML = Math.round(totalSec / 60) + '<small> 分</small>';
+  }
+
+  // 记录列表
+  function renderRecords(items){
+    if(!items.length){
+      recordList.innerHTML = '<div class="empty">还没有打卡记录，去完成今天的第一跑吧。</div>';
+      return;
+    }
+    var html = items.map(function(it){
+      return ''
+        + '<div class="record">'
+        +   '<div class="cell date-cell"><span class="k">日期</span><span class="date">' + escapeHtml(it.run_date) + '</span></div>'
+        +   '<div class="cell"><span class="k">距离</span><span class="val">' + Number(it.distance_km).toFixed(2) + ' km</span></div>'
+        +   '<div class="cell"><span class="k">用时</span><span class="val">' + formatDuration(it.duration_seconds) + '</span></div>'
+        +   '<div class="cell"><span class="k">配速</span><span class="val">' + formatPace(it.pace_seconds_per_km) + '</span></div>'
+        +   '<div class="cell note-cell"><span class="k">备注</span><span class="note">' + (it.note ? escapeHtml(it.note) : '—') + '</span></div>'
+        + '</div>';
+    }).join("");
+    recordList.innerHTML = html;
+  }
+
+  /* ---------- 提交打卡 ---------- */
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    setFormMsg("");
+
+    // 前端先做一轮校验
+    var distance = parseFloat(distanceEl.value);
+    var minutes  = parseInt(minutesEl.value, 10) || 0;
+    var seconds  = parseInt(secondsEl.value, 10) || 0;
+    var durationSec = minutes * 60 + seconds;
+
+    if(!(distance > 0)){ setFormMsg("请填写正确的距离", "err"); return; }
+    if(durationSec <= 0){ setFormMsg("用时不能为 0", "err"); return; }
+    if(seconds > 59){ setFormMsg("秒数应在 0–59 之间", "err"); return; }
+    if(!runDateEl.value){ setFormMsg("请选择日期", "err"); return; }
+
+    var payload = {
+      distance_km: Math.round(distance * 100) / 100,
+      duration_seconds: durationSec,
+      run_date: runDateEl.value,
+      note: noteEl.value.trim()
+    };
+
+    // 写入本地存储
+    try{
+      addRecord(payload);
+    }catch(err){
+      setFormMsg("保存失败：浏览器存储不可用", "err");
+      return;
+    }
+
+    // 成功：提示、清空用时和备注、刷新列表
+    showToast("打卡成功，继续加油！");
+    distanceEl.value = "";
+    minutesEl.value = "";
+    secondsEl.value = "";
+    noteEl.value = "";
+    setFormMsg("");
+    loadRecords();
+  });
+
+  /* ---------- 清空本机记录（二次确认） ---------- */
+  document.getElementById('clearBtn').addEventListener('click', function(){
+    if(getAll().length === 0){ showToast("当前没有记录"); return; }
+    if(confirm("确定清空本机的全部打卡记录吗？此操作不可恢复。")){
+      saveAll([]);
+      loadRecords();
+      showToast("已清空本机记录");
+    }
+  });
+
+  /* ---------- 初始化 ---------- */
+  // 本地存储版无需后端，任何环境打开都可用
+  // 日期默认今天（本地时区 YYYY-MM-DD）
+  (function setToday(){
+    var d = new Date();
+    runDateEl.value = d.getFullYear() + "-"
+      + String(d.getMonth()+1).padStart(2,'0') + "-"
+      + String(d.getDate()).padStart(2,'0');
+  })();
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+  loadRecords();
+})();
+</script>
+</body>
+</html>

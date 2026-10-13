@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>配速计算器 · 跑道笔记</title>
+<meta name="description" content="跑步配速计算器：输入距离和用时算出每公里配速与速度，或按目标配速反推完赛时间，支持中考1000/800米。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231668dc'/%3E%3Cg stroke='white' stroke-width='4' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 50 L30 18'/%3E%3Cpath d='M27 50 L33 18'/%3E%3Cpath d='M40 50 L36 18'/%3E%3Cpath d='M53 50 L39 18'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+/* ===== 配速计算器样式（蓝白运动风，与站点统一，纯内联无外部资源） ===== */
+:root{
+  --blue:#1668dc; --blue-deep:#0a3d8f; --blue-bright:#3d8bfd;
+  --blue-soft:#eaf2ff; --ink:#16233b; --muted:#5a6b85;
+  --line:#dbe7f7; --bg:#f5f9ff; --white:#fff;
+  --green:#16a34a; --red:#dc2626;
+  --radius:14px; --shadow:0 8px 24px rgba(16,60,130,.08);
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.7; -webkit-font-smoothing:antialiased;
+}
+.container{ max-width:760px; margin:0 auto; padding:0 20px; }
+
+/* 顶部 */
+.site-header{ background:linear-gradient(160deg,var(--blue-deep),var(--blue)); color:#fff; padding:26px 0 58px; }
+.header-row{ display:flex; align-items:center; gap:12px; }
+.header-row svg{ width:36px; height:36px; }
+.header-row h1{ font-size:21px; font-weight:800; }
+.header-row small{ display:block; font-size:11px; opacity:.8; letter-spacing:2px; }
+.header-link{ margin-left:auto; font-size:13.5px; color:#cfe2ff; text-decoration:underline; }
+
+/* 卡片 */
+.card{ background:var(--white); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:24px; margin-top:-34px; margin-bottom:22px; position:relative; }
+.card h2{ font-size:17px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.card h2::before{ content:""; width:5px; height:18px; border-radius:3px; background:var(--blue); }
+
+/* 模式切换 tab */
+.tabs{ display:flex; background:var(--blue-soft); border-radius:10px; padding:4px; margin-bottom:20px; }
+.tab{
+  flex:1; text-align:center; padding:9px; font-size:14.5px; font-weight:700; cursor:pointer;
+  border-radius:7px; color:var(--muted); border:none; background:none; font-family:inherit;
+}
+.tab.active{ background:var(--white); color:var(--blue); box-shadow:0 2px 6px rgba(16,60,130,.12); }
+
+/* 快捷距离按钮 */
+.quick{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.quick button{
+  padding:7px 14px; font-size:13.5px; border:1.5px solid var(--line); background:#fbfdff;
+  border-radius:999px; cursor:pointer; color:var(--ink); font-family:inherit;
+}
+.quick button.on, .quick button:hover{ border-color:var(--blue); color:var(--blue); background:var(--blue-soft); }
+
+/* 表单 */
+.field{ margin-bottom:14px; }
+.field label{ display:block; font-size:14px; font-weight:600; margin-bottom:6px; }
+.field input{
+  width:100%; height:44px; padding:0 12px; font-size:16px; border:1.5px solid var(--line);
+  border-radius:10px; background:#fbfdff; outline:none; font-family:inherit;
+}
+.field input:focus{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(22,104,220,.12); background:#fff; }
+.row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+.row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.unit-input{ position:relative; }
+.unit-input span{ position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:13px; color:var(--muted); pointer-events:none; }
+.unit-input input{ padding-right:38px; }
+
+.btn{
+  width:100%; height:48px; border:none; border-radius:10px; background:var(--blue);
+  color:#fff; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:4px;
+}
+.btn:hover{ background:var(--blue-bright); }
+
+/* 结果区 */
+.result{ display:none; margin-top:20px; border-top:1px dashed var(--line); padding-top:18px; }
+.result.show{ display:block; }
+.result-main{ text-align:center; margin-bottom:16px; }
+.result-main .big{ font-size:clamp(34px,9vw,46px); font-weight:800; color:var(--blue); font-variant-numeric:tabular-nums; letter-spacing:1px; }
+.result-main .cap{ font-size:13.5px; color:var(--muted); }
+.result-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center; }
+.result-grid .box{ background:var(--blue-soft); border-radius:10px; padding:12px 6px; }
+.result-grid .box .v{ font-size:16px; font-weight:800; color:var(--blue-deep); font-variant-numeric:tabular-nums; }
+.result-grid .box .l{ font-size:12px; color:var(--muted); }
+.err-msg{ color:var(--red); font-size:14px; text-align:center; margin-top:10px; min-height:20px; }
+
+.site-footer{ text-align:center; padding:10px 10px 30px; font-size:12.5px; color:var(--muted); }
+@media (max-width:560px){
+  .result-grid{ grid-template-columns:1fr; }
+  .row3{ grid-template-columns:1fr 1fr 1fr; gap:8px; }
+}
+@media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-row">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <rect width="64" height="64" rx="14" fill="rgba(255,255,255,.16)"/>
+      <g stroke="#fff" stroke-width="4" stroke-linecap="round">
+        <path d="M14 50 L30 18"/><path d="M27 50 L33 18"/><path d="M40 50 L36 18"/><path d="M53 50 L39 18"/>
+      </g>
+    </svg>
+    <h1>配速计算器<small>PACE CALCULATOR</small></h1>
+    <a class="header-link" href="index.html">返回首页</a>
+  </div>
+</header>
+
+<main class="container">
+  <section class="card">
+    <h2>跑步配速计算</h2>
+
+    <!-- 模式切换 -->
+    <div class="tabs">
+      <button class="tab active" data-mode="pace">距离+用时 → 算配速</button>
+      <button class="tab" data-mode="time">距离+配速 → 算完赛时间</button>
+    </div>
+
+    <!-- 常用距离快捷项（单位：公里） -->
+    <div class="quick" id="quickDist">
+      <button data-km="0.8">800m</button>
+      <button data-km="1" class="on">1000m</button>
+      <button data-km="3">3km</button>
+      <button data-km="5">5km</button>
+      <button data-km="10">10km</button>
+    </div>
+
+    <!-- 距离 -->
+    <div class="field">
+      <label for="distance">距离（公里）</label>
+      <div class="unit-input"><input type="number" id="distance" min="0.01" max="500" step="0.01" value="1"><span>km</span></div>
+    </div>
+
+    <!-- 模式一：用时 时/分/秒 -->
+    <div id="blockTime">
+      <div class="field">
+        <label>完赛用时</label>
+        <div class="row3">
+          <div class="unit-input"><input type="number" id="tH" min="0" max="23" placeholder="时"><span>时</span></div>
+          <div class="unit-input"><input type="number" id="tM" min="0" max="59" placeholder="分"><span>分</span></div>
+          <div class="unit-input"><input type="number" id="tS" min="0" max="59" placeholder="秒"><span>秒</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 模式二：目标配速 分/秒 -->
+    <div id="blockPace" style="display:none">
+      <div class="field">
+        <label>目标配速（每公里）</label>
+        <div class="row2">
+          <div class="unit-input"><input type="number" id="pM" min="0" max="59" placeholder="分"><span>分/km</span></div>
+          <div class="unit-input"><input type="number" id="pS" min="0" max="59" placeholder="秒"><span>秒/km</span></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" id="calcBtn">开始计算</button>
+    <p class="err-msg" id="errMsg"></p>
+
+    <!-- 结果 -->
+    <div class="result" id="result">
+      <div class="result-main">
+        <div class="big" id="rBig">—</div>
+        <div class="cap" id="rCap">平均配速（分:秒 / 公里）</div>
+      </div>
+      <div class="result-grid" id="rGrid"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">© <span id="year"></span> 跑道笔记 · 配速计算器</footer>
+
+<script>
+/* ============================================================
+   配速计算器逻辑（原生 JS）
+   换算关系：配速(秒/km) = 总用时秒 / 距离km；速度 = 3600 / 配速
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var mode = "pace";            // 当前模式：pace 算配速 / time 算完赛
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------- tab 切换 ---------- */
+  document.querySelectorAll('.tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      mode = tab.getAttribute('data-mode');
+      $('blockTime').style.display = mode === 'pace' ? '' : 'none';
+      $('blockPace').style.display = mode === 'time' ? '' : 'none';
+      $('errMsg').textContent = "";
+      $('result').classList.remove('show');
+    });
+  });
+
+  /* ---------- 快捷距离 ---------- */
+  $('quickDist').addEventListener('click', function(e){
+    var btn = e.target.closest('button');
+    if(!btn) return;
+    document.querySelectorAll('#quickDist button').forEach(function(b){ b.classList.remove('on'); });
+    btn.classList.add('on');
+    $('distance').value = btn.getAttribute('data-km');
+  });
+
+  /* ---------- 工具：秒 -> "M分SS秒" / "H:MM:SS" ---------- */
+  function fmtClock(totalSec){
+    totalSec = Math.round(totalSec);
+    var h = Math.floor(totalSec/3600), m = Math.floor((totalSec%3600)/60), s = totalSec%60;
+    if(h > 0) return h + ":" + String(m).padStart(2,'0') + ":" + String(s).padStart(2,'0');
+    return m + "分" + String(s).padStart(2,'0') + "秒";
+  }
+  // 秒 -> 配速 "M'SS\""
+  function fmtPace(secPerKm){
+    secPerKm = Math.round(secPerKm);
+    return Math.floor(secPerKm/60) + "'" + String(secPerKm%60).padStart(2,'0') + '"';
+  }
+  function num(v){ var n = parseInt(v,10); return isNaN(n) ? 0 : n; }
+
+  /* ---------- 计算 ---------- */
+  $('calcBtn').addEventListener('click', function(){
+    $('errMsg').textContent = "";
+    var dist = parseFloat($('distance').value);
+    if(!(dist > 0)){ $('errMsg').textContent = "请填写正确的距离"; return; }
+
+    if(mode === "pace"){
+      // 用时 -> 配速
+      var totalSec = num($('tH').value)*3600 + num($('tM').value)*60 + num($('tS').value);
+      if(totalSec <= 0){ $('errMsg').textContent = "请填写完赛用时"; return; }
+
+      var pace = totalSec / dist;                 // 秒/km
+      var speed = 3600 / pace;                    // km/h
+      $('rBig').textContent = fmtPace(pace) + "/km";
+      $('rCap').textContent = "平均配速（每公里）";
+      $('rGrid').innerHTML =
+        box(speed.toFixed(2), "速度 km/h") +
+        box(fmtClock(pace/10), "每 100m 用时") +
+        box(fmtClock(totalSec), "总用时");
+    }else{
+      // 配速 -> 完赛时间
+      var pM = num($('pM').value), pS = num($('pS').value);
+      var paceSec = pM*60 + pS;
+      if(paceSec <= 0){ $('errMsg').textContent = "请填写目标配速"; return; }
+
+      var finishSec = paceSec * dist;
+      var speed2 = 3600 / paceSec;
+      $('rBig').textContent = fmtClock(finishSec);
+      $('rCap').textContent = "预计完赛用时";
+      $('rGrid').innerHTML =
+        box(fmtPace(paceSec)+"/km", "目标配速") +
+        box(speed2.toFixed(2), "速度 km/h") +
+        box(dist.toFixed(2)+" km", "总距离");
+    }
+    $('result').classList.add('show');
+  });
+
+  function box(v,l){ return '<div class="box"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>'; }
+
+  $('year').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
