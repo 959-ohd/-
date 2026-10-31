@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的 · 跑道笔记</title>
+<meta name="description" content="跑道笔记我的：一键备份跑步打卡与收藏的训练计划，换手机时粘贴备份码即可恢复。无需注册、不联网、数据只存在本机。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231668dc'/%3E%3Cg stroke='white' stroke-width='4' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 50 L30 18'/%3E%3Cpath d='M27 50 L33 18'/%3E%3Cpath d='M40 50 L36 18'/%3E%3Cpath d='M53 50 L39 18'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+/* ===== 我的数据 / 备份恢复（蓝白运动风，纯本地，无服务器） ===== */
+:root{
+  --blue:#1668dc; --blue-deep:#0a3d8f; --blue-bright:#3d8bfd;
+  --blue-soft:#eaf2ff; --ink:#16233b; --muted:#5a6b85;
+  --line:#dbe7f7; --bg:#f5f9ff; --white:#fff;
+  --ok:#16a34a;
+  --radius:14px; --shadow:0 8px 24px rgba(16,60,130,.08);
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.7; -webkit-font-smoothing:antialiased;
+}
+.container{ max-width:760px; margin:0 auto; padding:0 20px; }
+.site-header{ background:linear-gradient(160deg,var(--blue-deep),var(--blue)); color:#fff; padding:26px 0 58px; }
+.header-row{ display:flex; align-items:center; gap:12px; }
+.header-row svg{ width:36px; height:36px; }
+.header-row h1{ font-size:21px; font-weight:800; }
+.header-row small{ display:block; font-size:11px; opacity:.8; letter-spacing:2px; }
+.header-link{ margin-left:auto; font-size:13.5px; color:#cfe2ff; text-decoration:underline; }
+
+.card{ background:var(--white); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; margin-bottom:16px; }
+.head-card{ margin-top:-34px; }
+.head-card h2{ font-size:18px; font-weight:800; margin-bottom:4px; }
+.head-card .sub{ font-size:13.5px; color:var(--muted); }
+
+/* 数据概况 */
+.stat-row{ display:flex; gap:10px; margin-top:16px; }
+.stat-box{ flex:1; background:var(--blue-soft); border-radius:11px; padding:12px 8px; text-align:center; }
+.stat-box .n{ font-size:20px; font-weight:800; color:var(--blue-deep); }
+.stat-box .n small{ font-size:12px; font-weight:700; color:var(--blue); }
+.stat-box .l{ font-size:12px; color:var(--muted); margin-top:2px; }
+
+.section-title{ font-size:15px; font-weight:800; color:var(--blue-deep); margin:0 0 6px; }
+.step-tag{ display:inline-block; background:var(--blue); color:#fff; font-size:12px; font-weight:700;
+  border-radius:6px; padding:1px 8px; margin-right:8px; vertical-align:1px; }
+.step-desc{ font-size:13.5px; color:var(--muted); margin:2px 0 12px; }
+textarea{ width:100%; min-height:84px; padding:10px 12px; font-size:12.5px; line-height:1.5;
+  border:1.5px solid var(--line); border-radius:10px; background:#fbfdff; outline:none; resize:vertical;
+  font-family:ui-monospace,Consolas,monospace; word-break:break-all; }
+textarea:focus{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(22,104,220,.12); background:#fff; }
+.btn-row{ display:flex; gap:10px; flex-wrap:wrap; margin:10px 0 4px; }
+.btn{ height:42px; padding:0 16px; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer;
+  font-family:inherit; display:inline-flex; align-items:center; justify-content:center; }
+.btn-primary{ border:none; background:var(--blue); color:#fff; }
+.btn-primary:hover{ background:var(--blue-bright); }
+.btn-ghost{ border:1.5px solid var(--line); background:#fff; color:var(--blue); }
+.btn-ghost:hover{ border-color:var(--blue); background:var(--blue-soft); }
+.divider{ height:1px; background:var(--line); margin:18px 0; border:none; }
+.msg{ font-size:13px; min-height:18px; margin-top:8px; }
+.msg.ok{ color:var(--ok); }
+.msg.err{ color:#d23b3b; }
+.note-box{ background:#f8fbff; border-left:3px solid var(--blue); border-radius:0 8px 8px 0;
+  padding:10px 14px; font-size:13px; color:#33455f; margin-top:12px; }
+.file-label{ display:inline-flex; align-items:center; height:42px; padding:0 16px; border-radius:10px;
+  border:1.5px dashed var(--blue); color:var(--blue); background:var(--blue-soft); font-size:14px;
+  font-weight:700; cursor:pointer; }
+.file-label input{ display:none; }
+
+/* 收藏计划列表 */
+.cloud-item{ display:flex; align-items:center; gap:12px; border:1px solid var(--line); border-radius:10px;
+  padding:12px 14px; margin-bottom:9px; background:#fbfdff; }
+.cloud-item .main{ flex:1; min-width:0; }
+.cloud-item .t{ font-size:14.5px; font-weight:700; }
+.cloud-item .s{ font-size:12.5px; color:var(--muted); }
+.cloud-item .ops{ display:flex; gap:8px; flex:none; }
+.mini-btn{ border:1.5px solid var(--line); background:#fff; border-radius:8px; font-size:12.5px; padding:6px 12px;
+  cursor:pointer; color:var(--blue); font-family:inherit; text-decoration:none; }
+.mini-btn:hover{ border-color:var(--blue); background:var(--blue-soft); }
+.mini-btn.del{ color:#d23b3b; }
+.mini-btn.del:hover{ border-color:#f3b0b0; background:#fdf0f0; }
+.empty-line{ text-align:center; color:var(--muted); font-size:13.5px; padding:16px 0; }
+.hide{ display:none !important; }
+.site-footer{ text-align:center; padding:10px 10px 30px; font-size:12.5px; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-row">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <rect width="64" height="64" rx="14" fill="rgba(255,255,255,.16)"/>
+      <g stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none">
+        <path d="M20 14 L32 14 L26 30 L36 30 L24 52 L28 38 L20 38 Z"/>
+      </g>
+    </svg>
+    <h1>我的<small>BACKUP &amp; SYNC</small></h1>
+    <a class="header-link" href="index.html">返回首页</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- 概况 -->
+  <section class="card head-card">
+    <h2>本机数据与备份</h2>
+    <p class="sub">你的打卡和收藏都保存在当前设备的浏览器里，不注册、不联网。换手机时，用下面的“备份 / 恢复”搬走即可。</p>
+    <div class="stat-row">
+      <div class="stat-box"><div class="n" id="statCount">0<small> 次</small></div><div class="l">跑步打卡</div></div>
+      <div class="stat-box"><div class="n" id="statKm">0<small> km</small></div><div class="l">总里程</div></div>
+      <div class="stat-box"><div class="n" id="statPlan">0<small> 份</small></div><div class="l">收藏计划</div></div>
+    </div>
+  </section>
+
+  <!-- 备份与恢复 -->
+  <section class="card">
+    <div class="section-title"><span class="step-tag">旧手机</span>导出备份</div>
+    <p class="step-desc">两种方式任选：复制一段“备份码”（发给自己的微信/QQ/备忘录），或下载一个 .json 备份文件。</p>
+    <textarea id="codeBox" readonly placeholder="点下面按钮，这里会生成备份码；全选复制后保存好。"></textarea>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="copyCodeBtn" type="button">生成并复制备份码</button>
+      <button class="btn btn-ghost" id="downloadBtn" type="button">下载备份文件（.json）</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-title"><span class="step-tag">新手机</span>恢复数据</div>
+    <p class="step-desc">把备份码粘贴到下面，或选择之前下载的 .json 文件，点恢复即可。重复记录不会重复添加。</p>
+    <textarea id="importBox" placeholder="把备份码粘贴到这里……"></textarea>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="importCodeBtn" type="button">从备份码恢复</button>
+      <label class="file-label">
+        选择 .json 备份文件
+        <input type="file" id="fileInput" accept=".json,application/json">
+      </label>
+    </div>
+    <div class="msg" id="importMsg"></div>
+    <div class="note-box">
+      建议：每次练完一段时间就导出一次备份；清除浏览器数据、卸载重装浏览器前务必先备份。
+    </div>
+  </section>
+
+  <!-- 收藏的训练计划 -->
+  <section class="card">
+    <div class="section-title" style="margin-bottom:10px">收藏的训练计划</div>
+    <div id="planList"><div class="empty-line">加载中…</div></div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p style="margin-bottom:4px">定制网页小工具 · QQ 邮箱：<a href="mailto:765041959@qq.com" style="color:var(--blue)">765041959@qq.com</a></p>
+  <p>© <span id="year"></span> 跑道笔记 · 数据只存在你的设备里</p>
+</footer>
+
+<script src="store.js"></script>
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+  /* ---------- 概况 + 收藏列表 ---------- */
+  function render(){
+    var checkins = PDStore.getCheckins();
+    var km = checkins.reduce(function(s,c){ return s + (Number(c.distance_km)||0); }, 0);
+    var plans = PDStore.listPlans();
+    $("statCount").innerHTML = checkins.length + '<small> 次</small>';
+    $("statKm").innerHTML = km.toFixed(1) + '<small> km</small>';
+    $("statPlan").innerHTML = plans.length + '<small> 份</small>';
+
+    if(!plans.length){
+      $("planList").innerHTML = '<div class="empty-line">还没有收藏，去 <a href="plan-generator.html">训练计划生成器</a> 生成后点“收藏计划”。</div>';
+      return;
+    }
+    $("planList").innerHTML = plans.map(function(p){
+      return '<div class="cloud-item"><div class="main">'
+        + '<div class="t">'+esc(p.title||"训练计划")+'</div>'
+        + '<div class="s">收藏于 '+esc(p.created_at||"—")+'</div>'
+        + '</div><div class="ops">'
+        + '<a class="mini-btn" href="plan-generator.html#'+esc(p.hash||"")+'">打开</a>'
+        + '<button class="mini-btn del" type="button" data-id="'+esc(p.id)+'">删除</button>'
+        + '</div></div>';
+    }).join("");
+  }
+
+  /* 删除收藏（事件委托） */
+  $("planList").addEventListener("click", function(e){
+    var btn = e.target.closest ? e.target.closest("button.del") : null;
+    if(!btn) return;
+    if(!confirm("确定删除这份收藏吗？")) return;
+    PDStore.removePlan(btn.getAttribute("data-id"));
+    render();
+  });
+
+  /* ---------- 导出：备份码 ---------- */
+  function copyText(text){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      return navigator.clipboard.writeText(text);
+    }
+    // 旧浏览器兜底
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); }catch(e){}
+    document.body.removeChild(ta);
+    return Promise.resolve();
+  }
+  $("copyCodeBtn").addEventListener("click", function(){
+    var code = PDStore.encodeBackup(PDStore.buildBackup());
+    $("codeBox").value = code;
+    var btn = this;
+    copyText(code).then(function(){
+      var old = btn.textContent;
+      btn.textContent = "已复制，去保存好";
+      setTimeout(function(){ btn.textContent = old; }, 1800);
+    }).catch(function(){
+      // 复制失败也已显示在文本框，可手动全选
+      btn.textContent = "请手动全选复制";
+      setTimeout(function(){ btn.textContent = "生成并复制备份码"; }, 1800);
+    });
+  });
+
+  /* ---------- 导出：下载文件 ---------- */
+  $("downloadBtn").addEventListener("click", function(){
+    PDStore.downloadBackup();
+  });
+
+  /* ---------- 导入：备份码 ---------- */
+  function doImport(text){
+    var msg = $("importMsg");
+    try{
+      var obj = PDStore.decodeBackup(text);
+      var r = PDStore.mergeImport(obj);
+      render();
+      msg.className = "msg ok";
+      msg.textContent = "恢复成功：新增打卡 " + r.checkinsAdded + " 条、收藏计划 " + r.plansAdded + " 份（重复的已自动跳过）。";
+    }catch(e){
+      msg.className = "msg err";
+      msg.textContent = e.message || "恢复失败";
+    }
+  }
+  $("importCodeBtn").addEventListener("click", function(){
+    doImport($("importBox").value);
+  });
+
+  /* ---------- 导入：.json 文件 ---------- */
+  $("fileInput").addEventListener("change", function(){
+    var file = this.files && this.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){ doImport(String(reader.result || "")); };
+    reader.onerror = function(){
+      $("importMsg").className = "msg err";
+      $("importMsg").textContent = "读取文件失败，请重试";
+    };
+    reader.readAsText(file);
+    this.value = "";   // 允许重复选择同一文件
+  });
+
+  $("year").textContent = new Date().getFullYear();
+  render();
+})();
+</script>
+</body>
+</html>
