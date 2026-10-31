@@ -34,9 +34,10 @@
 ## 目录结构
 
 ```
+paodao-biji/
 ├── index.html             # 首页
 ├── *.html                 # 各功能页面
-├── store.js                # 本地数据模块（收藏 / 备份恢复）
+├── store.js               # 本地数据模块（收藏 / 备份恢复）
 ├── qrcode.png             # 收款码（可替换）
 └── README.md
 ```
