@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>训练计划生成器 · 跑道笔记</title>
+<meta name="description" content="免费生成中考800/1000米简易训练计划，含分阶段安排、配速参考与训练建议；也可一对一专项定制。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231668dc'/%3E%3Cg stroke='white' stroke-width='4' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 50 L30 18'/%3E%3Cpath d='M27 50 L33 18'/%3E%3Cpath d='M40 50 L36 18'/%3E%3Cpath d='M53 50 L39 18'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+/* ===== 训练计划生成器（蓝白运动风，与站点统一，纯内联无外部资源） ===== */
+:root{
+  --blue:#1668dc; --blue-deep:#0a3d8f; --blue-bright:#3d8bfd;
+  --blue-soft:#eaf2ff; --ink:#16233b; --muted:#5a6b85;
+  --line:#dbe7f7; --bg:#f5f9ff; --white:#fff;
+  --radius:14px; --shadow:0 8px 24px rgba(16,60,130,.08);
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.75; -webkit-font-smoothing:antialiased;
+}
+.container{ max-width:860px; margin:0 auto; padding:0 20px; }
+
+/* 顶部蓝头 */
+.site-header{ background:linear-gradient(160deg,var(--blue-deep),var(--blue)); color:#fff; padding:26px 0 58px; }
+.header-row{ display:flex; align-items:center; gap:12px; }
+.header-row svg{ width:36px; height:36px; }
+.header-row h1{ font-size:21px; font-weight:800; }
+.header-row small{ display:block; font-size:11px; opacity:.8; letter-spacing:2px; }
+.header-link{ margin-left:auto; font-size:13.5px; color:#cfe2ff; text-decoration:underline; }
+
+.card{ background:var(--white); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; margin-bottom:18px; }
+.head-card{ margin-top:-34px; }
+.head-card h2{ font-size:18px; font-weight:800; margin-bottom:4px; }
+.head-card .sub{ font-size:13.5px; color:var(--muted); margin-bottom:18px; }
+
+/* 表单 */
+.form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px 16px; }
+.field{ display:flex; flex-direction:column; gap:6px; }
+.field.full{ grid-column:1 / -1; }
+.field label{ font-size:13.5px; font-weight:700; color:var(--blue-deep); }
+.field select, .field input{
+  height:44px; padding:0 12px; font-size:16px; border:1.5px solid var(--line);
+  border-radius:10px; background:#fbfdff; outline:none; font-family:inherit; color:var(--ink);
+}
+.field select:focus, .field input:focus{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(22,104,220,.12); background:#fff; }
+.field .hint{ font-size:12px; color:var(--muted); }
+.gen-btn{
+  grid-column:1 / -1; height:48px; border:none; border-radius:10px; background:var(--blue);
+  color:#fff; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit;
+}
+.gen-btn:hover{ background:var(--blue-bright); }
+.form-err{ grid-column:1/-1; color:#d23b3b; font-size:13.5px; display:none; }
+.form-err.show{ display:block; }
+
+/* 结果区 */
+.result-card{ display:none; }
+.result-card.show{ display:block; }
+.result-card h3{ font-size:16px; font-weight:800; color:var(--blue-deep); margin:18px 0 8px; display:flex; align-items:center; gap:8px; }
+.result-card h3:first-child{ margin-top:4px; }
+.result-card h3 .n{ flex:none; width:22px; height:22px; border-radius:6px; background:var(--blue); color:#fff; font-size:12.5px; display:inline-flex; align-items:center; justify-content:center; }
+.kv{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px 16px; font-size:14px; }
+.kv b{ color:var(--blue-deep); }
+.plan-table{ width:100%; border-collapse:collapse; font-size:13.5px; margin-top:4px; }
+.plan-table th,.plan-table td{ border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+.plan-table th{ background:var(--blue-soft); color:var(--blue-deep); font-weight:700; white-space:nowrap; }
+.tl-row{ display:flex; gap:12px; padding:9px 0; border-bottom:1px dashed var(--line); font-size:14px; }
+.tl-row:last-child{ border-bottom:none; }
+.tl-week{ flex:none; min-width:118px; font-weight:700; color:var(--blue); }
+.week-list{ list-style:none; }
+.week-list li{ position:relative; padding-left:18px; margin:6px 0; font-size:14px; }
+.week-list li::before{ content:""; position:absolute; left:2px; top:11px; width:6px; height:6px; border-radius:50%; background:var(--blue-bright); }
+.phase-note{ font-size:13.5px; color:var(--muted); background:#f8fbff; border-left:3px solid var(--blue); padding:8px 12px; border-radius:0 8px 8px 0; margin-top:8px; }
+.copy-btn{
+  width:100%; height:44px; margin-top:16px; border:1.5px solid var(--blue); border-radius:10px;
+  background:#fff; color:var(--blue); font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit;
+}
+.copy-btn:hover{ background:var(--blue-soft); }
+
+/* 结果区两个操作按钮：分享链接（实心主推） + 复制文本（描边） */
+.result-actions{ display:flex; gap:10px; margin-top:16px; }
+.result-actions .copy-btn{ width:auto; flex:1; margin-top:0; }
+.share-btn{
+  flex:1; height:44px; border:none; border-radius:10px; background:var(--blue);
+  color:#fff; font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit;
+  box-shadow:0 6px 16px rgba(22,104,220,.22);
+}
+.share-btn:hover{ background:var(--blue-bright); }
+.share-note{ font-size:12.5px; color:var(--muted); margin-top:9px; text-align:center; }
+@media (max-width:480px){ .result-actions{ flex-direction:column; } }
+.share-toast{ position:fixed; left:50%; bottom:34px; transform:translateX(-50%) translateY(20px);
+  background:var(--blue-deep); color:#fff; font-size:13.5px; padding:10px 18px; border-radius:999px;
+  opacity:0; pointer-events:none; transition:all .25s; z-index:99; box-shadow:0 8px 24px rgba(10,61,143,.3); }
+.share-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* 一对一定制卡 */
+.custom-card{ background:linear-gradient(135deg,var(--blue-deep),var(--blue)); color:#fff; border:none; }
+.custom-card h3{ font-size:17px; font-weight:800; margin-bottom:6px; }
+.custom-card p{ font-size:14px; color:rgba(255,255,255,.9); margin:5px 0; }
+.custom-card ul{ list-style:none; margin:10px 0 14px; }
+.custom-card li{ position:relative; padding-left:20px; margin:6px 0; font-size:14px; color:rgba(255,255,255,.95); }
+.custom-card li::before{ content:""; position:absolute; left:3px; top:10px; width:7px; height:7px; border-radius:50%; background:#9ec5ff; }
+.custom-card .mail-btn{ display:inline-block; background:#fff; color:var(--blue-deep); font-weight:700; font-size:14.5px; padding:10px 24px; border-radius:10px; text-decoration:none; }
+
+/* 打赏卡 */
+.donate-card{ text-align:center; }
+.donate-card h3{ font-size:17px; font-weight:800; color:var(--blue-deep); margin-bottom:6px; }
+.donate-card p{ font-size:14px; color:var(--muted); max-width:560px; margin:0 auto 6px; }
+.qr-box{
+  width:184px; height:184px; margin:16px auto 8px; border:2px dashed var(--blue); border-radius:12px;
+  background:#f8fbff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--muted);
+}
+.qr-box svg{ width:56px; height:56px; stroke:var(--blue); fill:none; stroke-width:1.6; }
+.qr-box .t1{ font-size:13.5px; font-weight:700; color:var(--blue-deep); }
+.qr-box .t2{ font-size:11.5px; padding:0 14px; }
+.donate-card .vol{ font-size:12px; color:var(--muted); margin-top:6px; }
+
+.site-footer{ text-align:center; padding:10px 10px 30px; font-size:12.5px; color:var(--muted); }
+@media (max-width:560px){
+  .form-grid{ grid-template-columns:1fr; }
+  .kv{ grid-template-columns:1fr; }
+}
+@media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-row">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <rect width="64" height="64" rx="14" fill="rgba(255,255,255,.16)"/>
+      <g stroke="#fff" stroke-width="4" stroke-linecap="round">
+        <path d="M14 50 L30 18"/><path d="M27 50 L33 18"/><path d="M40 50 L36 18"/><path d="M53 50 L39 18"/>
+      </g>
+    </svg>
+    <h1>训练计划生成器<small>PLAN GENERATOR</small></h1>
+    <a class="header-link" href="index.html">返回首页</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- 表单 -->
+  <section class="card head-card">
+    <h2>简易训练计划生成器</h2>
+    <p class="sub">填写下面几项，立即生成一份简易训练计划：覆盖中考体测 800 / 1000 米，也覆盖 1500、3000、5000、10000 米到半程、全程马拉松（免费、仅供参考）。需要针对个人的精细方案，见下方「一对一专项定制」。</p>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="event">比赛 / 体测项目</label>
+        <select id="event">
+          <optgroup label="中考体测">
+            <option value="1000">男生 1000 米</option>
+            <option value="800">女生 800 米</option>
+          </optgroup>
+          <optgroup label="中长跑 / 路跑">
+            <option value="1500">1500 米</option>
+            <option value="2000">2000 米</option>
+            <option value="3000">3000 米</option>
+            <option value="5000">5000 米 / 5 公里</option>
+            <option value="10000">10000 米 / 10 公里</option>
+            <option value="21098">半程马拉松（21.1 公里）</option>
+            <option value="42195">全程马拉松（42.195 公里）</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="field">
+        <label for="best">当前最好成绩</label>
+        <input type="text" id="best" inputmode="numeric" placeholder="如 340 或 3:40">
+        <span class="hint" id="bestHint">可直接填 340（即 3 分 40 秒），也支持 3:40、3分40</span>
+      </div>
+      <div class="field">
+        <label for="days">每周可训练天数</label>
+        <select id="days">
+          <option value="3">3 天</option>
+          <option value="4" selected>4 天</option>
+          <option value="5">5 天</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="weeks">距离比赛 / 体测还有（周）</label>
+        <input type="number" id="weeks" min="2" max="20" value="8">
+        <span class="hint">2～20 周；不足 4 周会直接给冲刺方案</span>
+      </div>
+      <div class="form-err" id="err"></div>
+      <button class="gen-btn" id="genBtn" type="button">生成我的训练计划</button>
+    </div>
+  </section>
+
+  <!-- 生成结果 -->
+  <section class="card result-card" id="resultCard">
+    <div id="result"></div>
+    <div class="result-actions">
+      <button class="share-btn" id="shareBtn" type="button">复制分享链接</button>
+      <button class="copy-btn" id="favBtn" type="button" style="display:none">收藏计划</button>
+      <button class="copy-btn" id="copyBtn" type="button">复制整份计划（纯文本）</button>
+    </div>
+    <p class="share-note">点“复制分享链接”发给同学，对方打开就能看到同一份计划；也可“收藏计划”到本机，在「我的数据」里备份带走</p>
+  </section>
+
+  <!-- 一对一专项定制 -->
+  <section class="card custom-card">
+    <h3>一对一专项定制</h3>
+    <p>免费生成器给的是通用模板，适合大多数同学；如果你属于下面情况，建议找我们做一对一计划：</p>
+    <ul>
+      <li>有旧伤或膝盖、小腿、足底反复疼痛，需要避开动作、安排康复</li>
+      <li>体重、作息、场地（住校、跑步机、操场）特殊，通用课表排不进生活</li>
+      <li>离满分还差一点，想要按周精确到每天、配速和组数的冲分方案</li>
+      <li>想长期练中长跑（校队、3000/5000 米），不止应付体考</li>
+    </ul>
+    <p>定制流程：邮件说明你的项目、成绩、每周能练几天、有无伤病 → 我们评估后回复方案与费用。</p>
+    <a class="mail-btn" href="mailto:765041959@qq.com?subject=跑道笔记-一对一训练计划定制">联系定制：765041959@qq.com</a>
+  </section>
+
+  <!-- 打赏 -->
+  <section class="card donate-card">
+    <h3>请作者喝杯水</h3>
+    <p>跑道笔记的工具、知识库和训练计划都免费、无广告，由几个学生在课余时间维护。</p>
+    <p>如果它真的帮到了你的训练，你可以自愿打赏一瓶水，支持我们继续更新；不打赏也完全不影响使用任何功能。</p>
+
+    <!-- 收款码：已接入同目录 qrcode.png（微信收款码）；想更换，直接替换该图片文件即可。 -->
+    <img class="qr-img" src="qrcode.png" alt="微信收款码" style="width:184px;height:184px;object-fit:contain;border-radius:12px;border:1px solid #e3edfb;background:#fff;margin:18px auto 10px;display:block">
+    <p class="vol">自愿支持 · 金额随意 · 感谢每一位为跑道笔记补水的跑者</p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p style="margin-bottom:4px">定制网页小工具 · QQ 邮箱：<a href="mailto:765041959@qq.com" style="color:var(--blue)">765041959@qq.com</a></p>
+  <p>© <span id="year"></span> 跑道笔记 · 训练计划由固定规则生成，仅供参考；训练量力而行，身体不适请就医。</p>
+</footer>
+
+<!-- 本机收藏 + 备份（纯本地，不联网） -->
+<script src="store.js"></script>
+<script>
+/* ============================================================
+   训练计划生成器（原生 JS，固定规则，不收集任何数据）
+   思路：当前成绩 → 当前每公里配速 → 各训练类型参考配速；
+         剩余周数 → 基础/提升/模拟/减量四个阶段；
+         每周天数 → 可循环周课表。
+   ============================================================ */
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------- 工具函数 ---------- */
+  // 成绩解析：纯数字一律“从右起每两位为最低单位，其余为高一级单位”。
+  // 短距离按“分:秒”：340→3:40、205→2:05、2500→25:00；
+  // 半马/全马按“时:分”（useHour=true）：320→3:20:00、430→4:30:00、200→2:00:00。
+  // 带冒号、中文同样支持：短距离 3:40、3分40；长距离 3:20、3:20:00、3时20分。
+  function parseTime(v, useHour){
+    v = String(v).trim();
+    var hms = v.match(/^(\d+)\s*[:：]\s*(\d{1,2})\s*[:：]\s*(\d{1,2})$/);
+    if(hms) return parseInt(hms[1],10)*3600 + parseInt(hms[2],10)*60 + parseInt(hms[3],10);
+    var two = v.match(/^(\d+)\s*[:：]\s*(\d{1,2})$/);
+    if(two) return useHour ? parseInt(two[1],10)*3600 + parseInt(two[2],10)*60
+                           : parseInt(two[1],10)*60 + parseInt(two[2],10);
+    var cn = v.match(/^(\d+)\s*分\s*(\d{1,2})\s*秒?$/);
+    if(cn) return parseInt(cn[1],10)*60 + parseInt(cn[2],10);
+    if(useHour){
+      var hcn = v.match(/^(\d+)\s*时\s*(\d{1,2})?\s*分?$/);
+      if(hcn) return parseInt(hcn[1],10)*3600 + (hcn[2]?parseInt(hcn[2],10)*60:0);
+    }
+    if(/^\d+$/.test(v)){
+      if(useHour){
+        // 5 位及以上按“时:分:秒”右对齐：32045→3:20:45、032045→3:20:45
+        if(v.length >= 5){
+          var ss = parseInt(v.slice(-2),10);
+          var mm5 = parseInt(v.slice(-4,-2),10);
+          var hh5 = parseInt(v.slice(0,-4),10) || 0;
+          if(mm5 > 59 || ss > 59) return null;
+          return hh5*3600 + mm5*60 + ss;
+        }
+        // 3~4 位按“时:分”：320→3:20:00、430→4:30:00
+        var mm = parseInt(v.slice(-2),10) || 0;
+        var hh = v.length > 2 ? (parseInt(v.slice(0,-2),10) || 0) : 0;
+        if(mm > 59) return null;
+        return hh*3600 + mm*60;
+      }
+      var low = parseInt(v.slice(-2),10) || 0;          // 末两位为秒
+      var high = v.length > 2 ? (parseInt(v.slice(0,-2),10) || 0) : 0; // 其余为分
+      return high*60 + low;
+    }
+    return null;
+  }
+  // 秒 → "m:ss"（分:秒）
+  function ms(sec){
+    sec = Math.round(sec);
+    var h = Math.floor(sec/3600), m = Math.floor(sec%3600/60), s = sec%60;
+    if(h > 0) return h + ":" + (m<10?"0":"") + m + ":" + (s<10?"0":"") + s;
+    return m + ":" + (s<10?"0":"") + s;
+  }
+  // 秒/公里 → "3'40\"/km"
+  function pace(sec){
+    sec = Math.round(sec);
+    var m = Math.floor(sec/60), s = sec%60;
+    return m + "'" + (s<10?"0":"") + s + "\"/km";
+  }
+  function clamp(x,a,b){ return Math.max(a, Math.min(b,x)); }
+
+  /* ---------- 阶段划分（按长/短距离给不同侧重） ---------- */
+  function buildPhases(weeks, isLong){
+    var rows = [];
+    if(weeks <= 3){
+      if(weeks-1 >= 1){
+        rows.push({r:"第 1～" + (weeks-1) + "周", n:"冲刺维持期",
+          d: isLong
+            ? "保持每周 1 次质量课 + 1 次目标配速分段跑，周末一次中等长度长跑，不再加量，稳住状态。"
+            : "保持每周 1 次质量课 + 1 次项目模拟，其余轻松跑，不再加量，稳住状态和信心。"});
+      }
+      rows.push({r:"最后 1 周", n:"减量调整期",
+        d: isLong
+          ? "训练量降到平时一半，最后一次长距离安排在 10 天前；补碳水、睡好、别受伤。"
+          : "训练量降到平时一半，只保留几次短加速，重点睡好、放松、别受伤。"});
+      return rows;
+    }
+    var base = clamp(Math.round(weeks*0.3), 1, 3);   // 基础期周数
+    var taper = 1;                                   // 减量期
+    var mock = 1;                                    // 模拟期
+    var build = weeks - base - taper - mock;         // 提升期
+    if(build < 1){ base = base - 1; build = weeks - base - taper - mock; }
+    var cur = 1;
+    function span(n){ var x = "第 " + cur + "～" + (cur+n-1) + " 周"; cur += n; return x; }
+    rows.push({r:span(base), n:"基础期", d: isLong
+      ? "以轻松跑和周末长距离（LSD）为主，慢慢拉长单次时间，把有氧底子和长距离耐力打牢，辅以核心力量。"
+      : "以轻松跑为主，打有氧底子、让关节适应，辅以自重力量和短加速。"});
+    if(build >= 1) rows.push({r:span(build), n:"提升期", d: isLong
+      ? "每周 1 次 800/1000 米间歇 + 1 次节奏跑，周末保留一次中等长度 LSD，逐步提配速。"
+      : "每周 1 次间歇 + 1 次节奏跑，强度课之间安排轻松跑或休息，逐步提配速。"});
+    rows.push({r:span(mock), n:"模拟期", d: isLong
+      ? "安排 1～2 次目标配速分段跑，赛前最长一次 LSD 到比赛距离的 7～8 成，练补给、配速和节奏。"
+      : "按考试时间做 1 次完整项目模拟，练配速分配和战术，不追求每次都 PB。"});
+    rows.push({r:span(taper), n:"减量调整期", d: isLong
+      ? "总量减半、最后一次长距离放在 10～14 天前，赛前几天补碳水、睡好、多喝水。"
+      : "总量减半，保留 2～3 次短加速保持脚感，补觉、正常吃、多喝水。"});
+    return rows;
+  }
+
+  /* ---------- 按天数的周课表（长距离含周末 LSD，短距离含项目模拟） ---------- */
+  function buildWeek(days, isLong, lsd){
+    var plans;
+    if(isLong){
+      plans = {
+        "3":[
+          "轻松跑 30～40 分钟 + 跑后拉伸",
+          "质量课（间歇 / 节奏 / 目标配速分段，按阶段替换）",
+          "周末长距离 LSD（" + lsd + "）"
+        ],
+        "4":[
+          "轻松跑 + 动态拉伸",
+          "800/1000 米间歇（提升期）或目标配速分段（模拟期）",
+          "轻松跑 25～35 分钟 + 核心力量",
+          "周末长距离 LSD（" + lsd + "）"
+        ],
+        "5":[
+          "轻松跑 30 分钟",
+          "800/1000 米间歇（提升期）",
+          "节奏跑（提升期）",
+          "轻松跑 + 核心力量",
+          "周末长距离 LSD（" + lsd + "）"
+        ]
+      };
+    } else {
+      plans = {
+        "3":[
+          "轻松跑 20～30 分钟 + 跑后拉伸",
+          "质量课（间歇 / 节奏 / 模拟，按下方阶段说明替换）",
+          "轻松跑 25～35 分钟 + 15 分钟核心力量"
+        ],
+        "4":[
+          "轻松跑 + 动态拉伸",
+          "间歇跑（提升期）或项目模拟（模拟期）",
+          "轻松跑 20 分钟 + 自重力量",
+          "节奏跑（提升期）或轻松跑（其他阶段）"
+        ],
+        "5":[
+          "轻松跑 20～30 分钟",
+          "间歇跑（提升期）",
+          "轻松跑 + 核心力量",
+          "节奏跑（提升期）",
+          "轻松长跑（基础期延长，模拟期改项目模拟）"
+        ]
+      };
+    }
+    return plans[String(days)] || plans["4"];
+  }
+
+  /* ---------- 项目参数表 ----------
+     fast/mid：当前成绩“快/中”分档的秒数分界；rate：三档（快/中/入门）每周进步秒数；
+     cap：总进步封顶秒；limit：理论最快保护；iv：间歇单段公里数；
+     long：5km 及以上为耐力型长距离，加入周末 LSD 与补给策略。 */
+  var EVENTS = {
+    "800":  {name:"800 米",                  dist:0.8,    lo:110,  hi:330,  fast:160,  mid:220,  rate:[1.2,2,4.5], cap:30,  limit:132,  iv:0.4, long:false},
+    "1000": {name:"1000 米",                 dist:1.0,    lo:140,  hi:480,  fast:220,  mid:280,  rate:[1.5,2.5,5], cap:40,  limit:170,  iv:0.4, long:false},
+    "1500": {name:"1500 米",                 dist:1.5,    lo:230,  hi:720,  fast:360,  mid:450,  rate:[2,4,8],     cap:70,  limit:285,  iv:0.4, long:false},
+    "2000": {name:"2000 米",                 dist:2.0,    lo:320,  hi:1000, fast:510,  mid:630,  rate:[3,5.5,11],  cap:100, limit:400,  iv:0.8, long:false},
+    "3000": {name:"3000 米",                 dist:3.0,    lo:500,  hi:1500, fast:780,  mid:960,  rate:[4,7,14],    cap:150, limit:630,  iv:0.8, long:false},
+    "5000": {name:"5000 米（5 公里）",       dist:5.0,    lo:900,  hi:2700, fast:1350, mid:1680, rate:[6,11,22],   cap:260, limit:1150, iv:0.8, long:true,  lsd:"40～70 分钟"},
+    "10000":{name:"10000 米（10 公里）",     dist:10.0,   lo:1800, hi:5400, fast:2900, mid:3600, rate:[10,18,36],  cap:480, limit:2500, iv:1.0, long:true,  lsd:"60～90 分钟"},
+    "21098":{name:"半程马拉松（21.1 公里）", dist:21.0975,lo:4000, hi:12600,fast:6200, mid:7800, rate:[18,30,60],  cap:900, limit:5400, iv:1.0, long:true,  lsd:"80～120 分钟，赛前最长约 16～18 公里"},
+    "42195":{name:"全程马拉松（42.195 公里）",dist:42.195,lo:9000, hi:23400,fast:13200,mid:16200,rate:[30,45,90],  cap:1500,limit:7500, iv:1.0, long:true,  lsd:"100～160 分钟，赛前最长约 30～32 公里"}
+  };
+
+  /* ---------- 主生成 ---------- */
+  function generate(){
+    var E = EVENTS[$("event").value];
+    var useHour = E.dist >= 20;               // 半马/全马按“时:分”输入
+    var days = parseInt($("days").value,10);
+    var weeks = parseInt($("weeks").value,10);
+    var best = parseTime($("best").value, useHour);
+    var err = $("err");
+
+    // 校验
+    if(best === null){
+      err.textContent = useHour
+        ? "请填写当前最好成绩，例如半马/全马填 320（即 3:20:00），也支持 3:20 或 3:20:00。"
+        : "请填写当前最好成绩，例如填 340 或 3:40（即 3 分 40 秒）。";
+      err.classList.add("show"); return;
+    }
+    if(best < E.lo || best > E.hi){
+      err.textContent = E.name + " 的成绩看起来不太合理，请填写 " + ms(E.lo) + "～" + ms(E.hi) + " 之间的时间。";
+      err.classList.add("show"); return;
+    }
+    if(!(weeks >= 2 && weeks <= 20)){
+      err.textContent = "剩余周数请填写 2～20。";
+      err.classList.add("show"); return;
+    }
+    err.classList.remove("show");
+
+    var dist = E.dist, P = best/dist;
+
+    // 分水平（快/中/入门）估算每周进步，用封顶与理论地板约束，目标只快不慢
+    var lvl = best <= E.fast ? 0 : (best <= E.mid ? 1 : 2);
+    var gain = Math.min(E.rate[lvl] * weeks, E.cap);
+    var target = Math.max(E.limit, best - gain);
+    if(target > best) target = best;
+    var TP = target/dist;
+
+    // 间歇段：短距离 400m，长距离 800/1000m
+    var segM = Math.round(E.iv*1000);
+    var ivFast = (P-8)*E.iv, ivSlow = P*E.iv;
+    var ivName = segM + " 米间歇" + (segM===400 ? "单圈" : "单组");
+    var ivRest = segM===400 ? "快跑段，组间慢跑/走 200 米" : "快跑段，组间慢跑 400 米";
+    var ivUnit = segM===400 ? "圈" : "组";
+
+    var phases = buildPhases(weeks, E.long);
+    var week = buildWeek(days, E.long, E.lsd);
+
+    var paceRows = [
+      ["轻松跑 / 有氧", "能完整说话，约最大心率 60%～75%", pace(P+60) + " ～ " + pace(P+90)]
+    ];
+    if(E.long){
+      paceRows.push(["周末长距离 LSD", "比比赛慢、轻松可交谈，练耐力", pace(P+40) + " ～ " + pace(P+70) + "，" + E.lsd]);
+    }
+    paceRows.push(["节奏跑", "偏吃力但能稳住，约最大心率 80%～90%", pace(P+12) + " ～ " + pace(P+22)]);
+    paceRows.push([ivName, ivRest, ms(ivFast) + " ～ " + ms(ivSlow) + " / " + ivUnit]);
+    paceRows.push(["目标比赛配速", "按参考目标换算，模拟与比赛时参照", pace(TP)]);
+    paceRows.push(["短加速 60～80 米", "逐级加速，不计时", "体会轻快摆臂和步频"]);
+
+    var common = [
+      "每次训练前热身 5～8 分钟到微出汗，跑后慢走并静态拉伸 20～30 秒/动作。",
+      "间歇、节奏、模拟这类强度课每周不超过 2 次，中间至少隔一天轻松跑或休息。",
+      "配速用「配速计算器」换算每圈用时，练到对配速有感觉；强度用心率区间计算器参考。",
+      "每天保证 8～9 小时睡眠、吃够主食；出现固定点疼痛、肿胀或跛行立即停训。"
+    ];
+    var shortTips = [
+      "考试前 200 米不要被人群带快，按目标配速匀速出去，最后 150～200 米靠摆臂冲刺。",
+      "穿平时训练的旧鞋考试，不要当天换新鞋；跑量每周增幅控制在约 10% 以内。"
+    ];
+    var longTips = [
+      "超过 60 分钟的长距离要练补给：每 40～60 分钟补水，可带能量胶或香蕉，赛前至少模拟一次。",
+      "周末长距离时间按计划慢慢加，单次跑量增幅不超过约 10%，不要一次拉太长。",
+      "起跑前 2 公里压住速度、别被人群带快，前慢后快更省力，最后阶段再加速。",
+      "长距离选合脚的缓震跑鞋，赛前剪好脚趾甲、系好鞋带，避免磨脚和黑指甲。"
+    ];
+    if(E.dist >= 42){
+      longTips.push("全马建议至少预留 12～16 周系统训练，时间不足时优先保证每周一次长距离；比赛和 30 公里以上长跑中每 45 分钟补一支能量胶或等量碳水，赛前 3 天增加主食储备糖原。");
+    }
+    var tips = common.concat(E.long ? longTips : shortTips);
+
+    var goalNote = E.long
+      ? "目标成绩按你当前水平分段估算进步幅度（入门空间大、越接近高水平越难提升），受训练质量、伤病、作息影响并不保证达成，仅供参考，以你的目标比赛为准。"
+      : "目标成绩按你当前水平分段估算进步幅度（入门空间大、越接近满分越难提升），受训练质量、伤病、作息影响并不保证达成，仅供参考，最终以当地中考满分线为准。";
+    var weekNote = E.long
+      ? "基础期以轻松跑和周末 LSD 为主；提升期把质量课换成间歇/节奏；模拟期做目标配速分段，最长一次 LSD 到比赛距离的 7～8 成；减量期总量减半、最后一次长距离放在 10～14 天前。"
+      : "基础期把「间歇/节奏」全部换成轻松跑、只留几次短加速；提升期按课表练间歇和节奏；模拟期用一次完整 " + E.name + " 替换其中一个质量课；减量期总量减半、只保留短加速。";
+
+    /* ===== 渲染 HTML ===== */
+    var html = "";
+    html += "<h3><span class='n'>1</span>你的训练数据</h3>";
+    html += "<div class='kv'>"
+      + "<div>项目：<b>" + E.name + "</b></div>"
+      + "<div>当前成绩：<b>" + ms(best) + "</b></div>"
+      + "<div>当前配速：<b>" + pace(P) + "</b></div>"
+      + "<div>每周训练：<b>" + days + " 天</b></div>"
+      + "<div>剩余时间：<b>" + weeks + " 周</b></div>"
+      + "<div>参考目标：<b>" + ms(target) + "（" + pace(TP) + "）</b></div>"
+      + "</div>";
+    html += "<div class='phase-note'>" + goalNote + "</div>";
+
+    html += "<h3><span class='n'>2</span>各训练类型参考配速</h3>";
+    html += "<table class='plan-table'><colgroup><col style='width:30%'><col style='width:38%'><col style='width:32%'></colgroup><thead><tr><th>训练类型</th><th>强度体感</th><th>参考配速 / 用时</th></tr></thead><tbody>";
+    paceRows.forEach(function(r){
+      html += "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td><td>" + r[2] + "</td></tr>";
+    });
+    html += "</tbody></table>";
+
+    html += "<h3><span class='n'>3</span>全周期阶段安排</h3>";
+    phases.forEach(function(ph){
+      html += "<div class='tl-row'><span class='tl-week'>" + ph.r + "<br>" + ph.n + "</span><span>" + ph.d + "</span></div>";
+    });
+
+    html += "<h3><span class='n'>4</span>每周可循环课表</h3>";
+    html += "<ul class='week-list'>";
+    week.forEach(function(w,i){ html += "<li>第 " + (i+1) + " 个训练日：" + w + "</li>"; });
+    html += "</ul>";
+    html += "<div class='phase-note'>" + weekNote + "</div>";
+
+    html += "<h3><span class='n'>5</span>关键提醒</h3><ul class='week-list'>";
+    tips.forEach(function(t){ html += "<li>" + t + "</li>"; });
+    html += "</ul>";
+
+    $("result").innerHTML = html;
+    $("resultCard").classList.add("show");
+    $("resultCard").scrollIntoView({behavior:"smooth", block:"start"});
+    syncShareUrl();   // 生成成功后把参数写进地址栏，方便分享
+    updateFavBtn();   // 重置“收藏计划”按钮状态
+
+    /* ===== 同时生成纯文本用于复制 ===== */
+    var txt = "===== 跑道笔记 · " + E.name + " 训练计划 =====\n";
+    txt += "当前成绩：" + ms(best) + "（配速 " + pace(P) + "）\n";
+    txt += "每周训练：" + days + " 天；剩余：" + weeks + " 周\n";
+    txt += "参考目标：" + ms(target) + "（配速 " + pace(TP) + "，以你的目标为准）\n\n";
+    txt += "【参考配速】\n";
+    paceRows.forEach(function(r){ txt += "· " + r[0] + "：" + r[2] + "（" + r[1] + "）\n"; });
+    txt += "\n【阶段安排】\n";
+    phases.forEach(function(ph){ txt += "· " + ph.r + " " + ph.n + "：" + ph.d + "\n"; });
+    txt += "\n【每周课表】\n";
+    week.forEach(function(w,i){ txt += "· 训练日" + (i+1) + "：" + w + "\n"; });
+    txt += weekNote + "\n\n";
+    txt += "【关键提醒】\n";
+    tips.forEach(function(t){ txt += "· " + t + "\n"; });
+    txt += "\n—— 由跑道笔记训练计划生成器生成，仅供参考 ——";
+    $("copyBtn").dataset.text = txt;
+  }
+
+  /* ---------- 复制（剪贴板 API，失败降级为 textarea） ---------- */
+  function copyText(t){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      return navigator.clipboard.writeText(t);
+    }
+    return new Promise(function(res,rej){
+      var ta = document.createElement("textarea");
+      ta.value = t; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand("copy"); res(); }catch(e){ rej(e); }
+      document.body.removeChild(ta);
+    });
+  }
+
+  // 根据项目切换成绩框的单位提示与占位符
+  function updateBestHint(){
+    var useHour = EVENTS[$("event").value].dist >= 20;
+    $("best").placeholder = useHour ? "如 320 或 3:20" : "如 340 或 3:40";
+    $("bestHint").textContent = useHour
+      ? "填 320＝3:20:00；带秒填 5 位如 32045＝3:20:45，也支持 3:20:45"
+      : "可直接填 340（即 3 分 40 秒），也支持 3:40、3分40";
+  }
+  $("event").addEventListener("change", updateBestHint);
+  updateBestHint();
+  $("genBtn").addEventListener("click", generate);
+  $("copyBtn").addEventListener("click", function(){
+    var t = $("copyBtn").dataset.text;
+    if(!t) return;
+    var btn = this, old = btn.textContent;
+    copyText(t).then(function(){
+      btn.textContent = "已复制，去粘贴吧";
+      setTimeout(function(){ btn.textContent = old; }, 1800);
+    }).catch(function(){ btn.textContent = "复制失败，请手动选择文本"; });
+  });
+
+  /* ---------- 计划分享：把表单参数编码进 URL（hash），打开带参链接自动还原 ---------- */
+  function buildShareHash(){
+    return "e=" + encodeURIComponent($("event").value)
+         + "&b=" + encodeURIComponent($("best").value.trim())
+         + "&d=" + encodeURIComponent($("days").value)
+         + "&w=" + encodeURIComponent($("weeks").value);
+  }
+  function parseShareHash(){
+    var h = location.hash.replace(/^#/, "");
+    if(h.indexOf("e=") === -1) return null;
+    var q = {};
+    h.split("&").forEach(function(kv){
+      var i = kv.indexOf("=");
+      if(i > -1){ q[kv.slice(0,i)] = decodeURIComponent(kv.slice(i+1)); }
+    });
+    return (q.e && q.b && q.d && q.w) ? q : null;
+  }
+  // 把当前参数写进地址栏（replaceState：不刷新、不产生多余历史记录）
+  function syncShareUrl(){
+    try{ history.replaceState(null, "", location.pathname + "#" + buildShareHash()); }catch(e){}
+  }
+  // 校验下拉框是否存在该选项，避免被改动过的链接出现空选中
+  function optionExists(sel, val){
+    for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value === val) return true; }
+    return false;
+  }
+
+  $("shareBtn").addEventListener("click", function(){
+    syncShareUrl();
+    var link = location.origin + location.pathname + location.hash;
+    var btn = this, old = btn.textContent;
+    copyText(link).then(function(){
+      btn.textContent = "链接已复制，发给同学吧";
+      setTimeout(function(){ btn.textContent = old; }, 1800);
+    }).catch(function(){
+      try{ window.prompt("复制下面这条链接发给同学：", link); }catch(e){}
+      btn.textContent = old;
+    });
+  });
+
+  /* ---------- 收藏计划到本机（纯本地，可在“我的数据”里备份/换机） ---------- */
+  function planTitle(){
+    var E = EVENTS[$("event").value];
+    return E.name + " · 当前 " + $("best").value.trim() + " · " + $("weeks").value + " 周计划";
+  }
+  function nowStr(){
+    var d = new Date(), p = function(n){ return String(n).padStart(2,"0"); };
+    return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes());
+  }
+  function updateFavBtn(){
+    var hash = buildShareHash();
+    $("favBtn").style.display = "";
+    $("favBtn").textContent = PDStore.hasPlan(hash) ? "已收藏（再点取消）" : "收藏计划";
+  }
+  $("favBtn").addEventListener("click", function(){
+    var hash = buildShareHash();
+    var btn = this;
+    if(PDStore.hasPlan(hash)){
+      PDStore.removePlanByHash(hash);
+      updateFavBtn();
+      return;
+    }
+    if(PDStore.addPlan({ title: planTitle(), hash: hash, created_at: nowStr() })){
+      btn.textContent = "已收藏 ✓";
+      setTimeout(updateFavBtn, 1400);
+    }
+  });
+
+  /* 打开带参数的分享链接：自动填好表单并生成同一份计划 */
+  (function restoreFromShare(){
+    var q = parseShareHash();
+    if(!q) return;
+    if(!optionExists($("event"), q.e) || !optionExists($("days"), q.d)) return;
+    var w = parseInt(q.w, 10);
+    if(!(w >= 2 && w <= 20)) return;
+    $("event").value = q.e;
+    $("best").value = q.b;
+    $("days").value = q.d;
+    $("weeks").value = w;
+    updateBestHint();
+    generate();
+  })();
+
+  updateFavBtn();
+  $("year").textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
