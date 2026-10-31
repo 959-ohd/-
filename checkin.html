@@ -168,6 +168,10 @@ a{ color:var(--blue); text-decoration:none; }
   <!-- ========== 左：打卡表单 ========== -->
   <section class="card">
     <h2>新增打卡</h2>
+    <!-- 本机数据备份提示 -->
+    <div style="margin:0 0 14px;font-size:13px;border-radius:9px;padding:9px 12px;line-height:1.6;background:#f3f7fd;color:#33455f">
+      打卡记录只存在本机。<a href="account.html" style="color:#1668dc;font-weight:700">去「我的数据」备份</a>，一键导出，换手机也能看。
+    </div>
     <form id="checkinForm" autocomplete="off">
       <div class="form-group">
         <label for="runDate">日期</label>
@@ -224,14 +228,15 @@ a{ color:var(--blue); text-decoration:none; }
 </main>
 
 <footer class="site-footer">
-  © <span id="year">2026</span> 跑道笔记 · 跑步打卡
+  <p style="margin-bottom:4px">定制网页小工具 · QQ 邮箱：<a href="mailto:765041959@qq.com" style="color:var(--blue)">765041959@qq.com</a></p>
+  <p>© <span id="year">2026</span> 跑道笔记 · 跑步打卡</p>
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* ============================================================
-   跑步打卡页 · 前端逻辑（原生 JS，无任何依赖，本地存储版）
+   跑步打卡页 · 前端逻辑（原生 JS，本地存储；可在“我的数据”里备份换机）
    数据保存在浏览器 localStorage，字段与后端 API 保持一致，
    以后接入 FastAPI 后端时只需把 loadRecords / addRecord 换成
    fetch 请求，渲染层不用改。
@@ -399,14 +404,16 @@ a{ color:var(--blue); text-decoration:none; }
       return;
     }
 
-    // 成功：提示、清空用时和备注、刷新列表
-    showToast("打卡成功，继续加油！");
+    // 成功：清空用时和备注、刷新列表
     distanceEl.value = "";
     minutesEl.value = "";
     secondsEl.value = "";
     noteEl.value = "";
     setFormMsg("");
     loadRecords();
+
+    // 提示（数据已保存在本机，可在“我的数据”导出备份）
+    showToast("打卡成功，继续加油！");
   });
 
   /* ---------- 清空本机记录（二次确认） ---------- */
