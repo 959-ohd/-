@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>训练笔记 · 跑道笔记</title>
+<meta name="description" content="跑道笔记训练笔记：中考800/1000米备考、间歇跑、有氧慢跑、力量训练、热身拉伸、恢复伤病与训练复盘实战经验，关键词检索。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231668dc'/%3E%3Cg stroke='white' stroke-width='4' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 50 L30 18'/%3E%3Cpath d='M27 50 L33 18'/%3E%3Cpath d='M40 50 L36 18'/%3E%3Cpath d='M53 50 L39 18'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+/* ===== 训练笔记样式（蓝白运动风，与知识库/站点统一，纯内联无外部资源） ===== */
+:root{
+  --blue:#1668dc; --blue-deep:#0a3d8f; --blue-bright:#3d8bfd;
+  --blue-soft:#eaf2ff; --ink:#16233b; --muted:#5a6b85;
+  --line:#dbe7f7; --bg:#f5f9ff; --white:#fff;
+  --radius:14px; --shadow:0 8px 24px rgba(16,60,130,.08);
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.75; -webkit-font-smoothing:antialiased;
+}
+.container{ max-width:860px; margin:0 auto; padding:0 20px; }
+
+/* 顶部蓝色头 */
+.site-header{ background:linear-gradient(160deg,var(--blue-deep),var(--blue)); color:#fff; padding:26px 0 58px; }
+.header-row{ display:flex; align-items:center; gap:12px; }
+.header-row svg{ width:36px; height:36px; }
+.header-row h1{ font-size:21px; font-weight:800; }
+.header-row small{ display:block; font-size:11px; opacity:.8; letter-spacing:2px; }
+.header-link{ margin-left:auto; font-size:13.5px; color:#cfe2ff; text-decoration:underline; }
+
+.card{ background:var(--white); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; margin-bottom:18px; }
+.head-card{ margin-top:-34px; }
+.head-card h2{ font-size:18px; font-weight:800; margin-bottom:4px; }
+.head-card .sub{ font-size:13.5px; color:var(--muted); margin-bottom:16px; }
+
+/* 搜索框 */
+.search-row{ display:flex; gap:10px; }
+.search-row input{
+  flex:1; height:46px; padding:0 14px; font-size:16px; border:1.5px solid var(--line);
+  border-radius:10px; background:#fbfdff; outline:none; font-family:inherit;
+}
+.search-row input:focus{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(22,104,220,.12); background:#fff; }
+
+/* 分类 tab */
+.cats{ display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 10px; }
+.cats button{
+  padding:6px 14px; font-size:13.5px; border:1.5px solid var(--line); background:#fbfdff;
+  border-radius:999px; cursor:pointer; color:var(--ink); font-family:inherit;
+}
+.cats button.on, .cats button:hover{ border-color:var(--blue); color:var(--blue); background:var(--blue-soft); }
+
+/* 热门关键词 */
+.hot{ display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-top:6px; }
+.hot .lab{ font-size:12.5px; color:var(--muted); }
+.hot button{
+  padding:3px 11px; font-size:12.5px; border:1px dashed var(--line); background:#fff;
+  border-radius:999px; cursor:pointer; color:var(--muted); font-family:inherit;
+}
+.hot button:hover{ border-color:var(--blue); color:var(--blue); }
+
+/* 结果列表 */
+.result-meta{ font-size:13px; color:var(--muted); margin:2px 2px 12px; }
+.n-item{
+  background:var(--white); border:1px solid var(--line); border-radius:12px;
+  padding:18px 20px; margin-bottom:14px; box-shadow:var(--shadow);
+}
+.n-item h3{ font-size:17px; font-weight:800; color:var(--blue-deep); margin-bottom:6px; display:flex; align-items:center; gap:9px; }
+.n-item h3 .cat-dot{ flex:none; font-size:11px; font-weight:700; color:#fff; background:var(--blue); border-radius:6px; padding:2px 8px; }
+.n-item .tags{ margin-bottom:8px; }
+.n-item .tags i{
+  display:inline-block; font-style:normal; font-size:11.5px; color:var(--blue);
+  background:var(--blue-soft); border-radius:6px; padding:1px 8px; margin-right:6px;
+}
+.n-item ul{ list-style:none; }
+.n-item li{ position:relative; padding-left:18px; margin:5px 0; font-size:14.5px; }
+.n-item li::before{ content:""; position:absolute; left:2px; top:11px; width:6px; height:6px; border-radius:50%; background:var(--blue-bright); }
+.n-item .one-line{ font-size:14px; color:var(--muted); background:#f8fbff; border-left:3px solid var(--blue); padding:7px 12px; border-radius:0 8px 8px 0; margin-top:10px; }
+/* 复盘模板块（等宽、保留换行） */
+.tpl{ white-space:pre-wrap; background:#f3f7fd; border:1px dashed var(--line); border-radius:8px; padding:12px 14px; font-size:13.5px; line-height:1.9; color:#33455f; margin-top:10px; font-family:ui-monospace,Consolas,"Courier New",monospace; }
+/* 相关工具/知识链接 */
+.rel{ margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.rel .lab{ font-size:12.5px; color:var(--muted); }
+.rel a{ font-size:12.5px; color:var(--blue); border:1px solid var(--line); background:#fbfdff; padding:3px 12px; border-radius:999px; text-decoration:none; }
+.rel a:hover{ border-color:var(--blue); background:var(--blue-soft); }
+mark{ background:#ffe9a8; color:inherit; border-radius:3px; padding:0 1px; }
+.empty{ text-align:center; color:var(--muted); padding:46px 10px; font-size:14.5px; }
+.empty .big{ font-size:34px; display:block; margin-bottom:10px; }
+
+/* 投稿/交流卡片 */
+.cta{ background:linear-gradient(130deg,var(--blue-soft),#fff); border:1px solid var(--line); border-radius:12px; padding:26px 22px; text-align:center; margin:6px 0 18px; }
+.cta h3{ color:var(--blue-deep); font-size:17px; margin-bottom:6px; }
+.cta p{ font-size:14px; color:var(--muted); margin-bottom:14px; }
+.cta .mail{ display:inline-block; background:var(--blue); color:#fff; font-weight:700; font-size:14.5px; padding:10px 24px; border-radius:10px; text-decoration:none; }
+.cta .mail:hover{ background:var(--blue-bright); }
+
+.site-footer{ text-align:center; padding:10px 10px 30px; font-size:12.5px; color:var(--muted); }
+@media (max-width:560px){
+  .search-row{ flex-direction:column; }
+}
+@media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-row">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <rect width="64" height="64" rx="14" fill="rgba(255,255,255,.16)"/>
+      <g stroke="#fff" stroke-width="4" stroke-linecap="round">
+        <path d="M14 50 L30 18"/><path d="M27 50 L33 18"/><path d="M40 50 L36 18"/><path d="M53 50 L39 18"/>
+      </g>
+    </svg>
+    <h1>训练笔记<small>TRAINING NOTES</small></h1>
+    <a class="header-link" href="index.html">返回首页</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- 搜索与筛选 -->
+  <section class="card head-card">
+    <h2>实战训练笔记</h2>
+    <p class="sub">这里写「怎么练、踩过什么坑、怎么调整」，理论原理见「跑步知识库」。输入关键词（如「考前减量」「间歇」「膝盖」「复盘」）即可检索。</p>
+
+    <div class="search-row">
+      <input type="search" id="kw" placeholder="搜索训练笔记，例如：考前减量、间歇跑、热身、复盘…">
+    </div>
+
+    <div class="cats" id="cats"></div>
+
+    <div class="hot">
+      <span class="lab">热门：</span>
+      <button data-q="考前减量">考前减量</button>
+      <button data-q="间歇跑">间歇跑</button>
+      <button data-q="热身">热身</button>
+      <button data-q="膝盖">膝盖</button>
+      <button data-q="复盘">复盘</button>
+      <button data-q="配速">配速</button>
+    </div>
+  </section>
+
+  <!-- 结果 -->
+  <div class="result-meta" id="meta"></div>
+  <div id="results"></div>
+
+  <!-- 投稿 / 交流 -->
+  <section class="cta">
+    <h3>你的训练心得，也可以出现在这里</h3>
+    <p>训练计划、踩坑记录、考场复盘都欢迎投稿，我们会整理署名发布。也欢迎定制适合自己的网页小工具。</p>
+    <a class="mail" href="mailto:765041959@qq.com">QQ 邮箱 765041959@qq.com</a>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p style="margin-bottom:4px">定制网页小工具 · QQ 邮箱：<a href="mailto:765041959@qq.com" style="color:var(--blue)">765041959@qq.com</a></p>
+  <p>© <span id="year"></span> 跑道笔记 · 训练笔记（学生业余训练经验，个体差异大，受伤请就医）</p>
+</footer>
+
+<script>
+/* ============================================================
+   训练笔记（原生 JS）
+   数据结构：cat 分类 / tags 关键词 / line 一句话 / points 要点
+             tpl 复盘模板（可选）/ rel 相关工具·知识链接（可选）
+   搜索范围：标题 + 标签 + 要点 + 模板；结果高亮命中词
+   ============================================================ */
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* 分类定义：key → 名称 */
+  var CATS = [
+    {key:"all",     name:"全部"},
+    {key:"exam",    name:"备考专项"},
+    {key:"train",   name:"训练方法"},
+    {key:"recover", name:"恢复伤病"},
+    {key:"review",  name:"复盘记录"}
+  ];
+
+  /* ---------- 笔记条目（可持续追加，照此格式新增一条即可） ---------- */
+  var DB = [
+    {
+      title:"中考 800/1000 米最常见的 3 个误区", cat:"exam",
+      tags:["中考","1000米","800米","误区","提分"],
+      line:"很多人不是练得不够，而是练错了方向。",
+      points:[
+        "误区一：天天拼命冲。每天都跑到极限，身体来不及超量恢复，成绩不涨还容易伤；一周有 1～2 次高质量课就够，其余是轻松跑。",
+        "误区二：只练快跑不打有氧基础。没有慢跑底子，后程必崩；前期要先用几周轻松跑把耐力地基打好。",
+        "误区三：考前还在猛练、拼测试。考前 3～5 天要减量，让身体在考试时处于「充满电」的状态。",
+        "额外提醒：起跑别被人群带快，前程冲出去的便宜，后程都要加倍还。"
+      ],
+      rel:[
+        {text:"配速计算器",href:"pace-calculator.html"},
+        {text:"知识库：超量恢复",href:"knowledge.html"},
+        {text:"跑步打卡",href:"checkin.html"}
+      ]
+    },
+    {
+      title:"一份可照抄的 8 周备考训练周期", cat:"exam",
+      tags:["中考","训练计划","周期","基础期","冲刺"],
+      line:"把 8 周分成三段，每段重点不同，比每天瞎练有效得多。",
+      points:[
+        "第 1～3 周·基础期：以轻松跑为主，每周 3 次左右（20～30 分钟），加 1 次简单力量，把有氧底子和关节适应打牢。",
+        "第 4～6 周·提升期：每周 1 次 400 米间歇（4～6 组）、1 次 20 分钟节奏跑、1～2 次轻松跑，强度课之间至少隔一天。",
+        "第 7 周·模拟期：按考试时间做 1～2 次 800/1000 米完整模拟，练配速分配和战术，不追求每次都 PB。",
+        "第 8 周·减量调整期：训练量减到平时六成左右，保留几次短促加速保持脚感，重点是睡好、放松、别受伤。",
+        "每周至少休息 1～2 天；感冒、发烧、持续疼痛时不要硬练。"
+      ],
+      rel:[
+        {text:"间歇跑计时器",href:"interval-timer.html"},
+        {text:"知识库：渐进超负荷",href:"knowledge.html"}
+      ]
+    },
+    {
+      title:"考前 1 周怎么减量，而不是躺平", cat:"exam",
+      tags:["中考","考前减量"," taper","调整","状态"],
+      line:"减量是减少训练量，不是完全不练。",
+      points:[
+        "考前 3～5 天把总跑量降到平时的 50%～60%，间歇组数减半、距离缩短，但配速可以保持轻快。",
+        "保留 2～3 次「短加速」：如 4～6 次 80 米轻松加速跑，让神经和肌肉记得快的感觉，又不产生疲劳。",
+        "考前 1～2 天以休息、慢走、轻度拉伸为主，别做力量和大强度，避免延迟性酸痛带到考场。",
+        "这几天重点是补觉（每天 8～9 小时）、正常吃够主食、多喝水，不要熬夜突击。",
+        "减量期会觉得「浑身没劲、想跑」，这是正常的超量恢复在蓄力，别因为心慌又去猛跑。"
+      ],
+      rel:[
+        {text:"知识库：超量恢复",href:"knowledge.html"},
+        {text:"知识库：睡眠与恢复",href:"knowledge.html"}
+      ]
+    },
+    {
+      title:"考试当天：热身、起跑、途中、冲刺全流程", cat:"exam",
+      tags:["中考","战术","起跑","热身","冲刺","考试当天"],
+      line:"把考试当一次提前演练过的流程，临场就不慌。",
+      points:[
+        "到场后：留足时间，提前 30～40 分钟开始热身，先慢跑 5～8 分钟到微出汗，再做动态拉伸和 2～3 次 60～80 米加速。",
+        "起跑：前 200 米压住速度，按目标配速匀速出去，不要被旁边快的人带节奏。",
+        "途中：保持两步一吸两步一呼、摆臂前后不交叉，身体放松微前倾；过弯道不硬超，留到直道再加速。",
+        "最后 150～200 米：靠加大摆臂带动双腿，盯住前面一个目标一个一个超过，能快 1～2 秒是 1～2 秒。",
+        "冲线后别立刻坐下，慢走几分钟、做几下深呼吸；穿平时训练的旧鞋，考试当天别换新鞋新袜。"
+      ],
+      rel:[
+        {text:"配速计算器",href:"pace-calculator.html"},
+        {text:"知识库：中考战术",href:"knowledge.html"}
+      ]
+    },
+    {
+      title:"成绩卡住不涨（平台期）怎么办", cat:"exam",
+      tags:["平台期","提分","瓶颈","交叉训练"],
+      line:"一直用同样的速度跑，身体就会一直停在原地。",
+      points:[
+        "平台期多半是刺激太单一：天天同一个配速、同一条路，身体适应后就不再进步。",
+        "给训练「换花样」：加入之前缺的那一类——只慢跑的人加间歇，只冲速度的人补长距离轻松跑。",
+        "检查恢复：睡不够、强度课太密、铁和碳水摄入不足，都会让成绩原地踏步，先把这些补齐。",
+        "安排 1 周减量周让身体消化训练，之后再上强度，往往会有一次明显的状态回升。",
+        "别只盯着一次测试成绩，连续 2～3 周看平均配速和体感，进步经常是阶梯式的。"
+      ],
+      rel:[
+        {text:"心率区间计算器",href:"heart-rate-zones.html"},
+        {text:"知识库：渐进超负荷",href:"knowledge.html"}
+      ]
+    },
+    {
+      title:"间歇跑实操：400 米 × 6 怎么定配速、歇多久", cat:"train",
+      tags:["间歇跑","400米","配速","组间休息","速度耐力"],
+      line:"间歇练的是「没完全恢复就再跑」，歇太久就失去意义。",
+      points:[
+        "配速：400 米快跑段大致接近日标 1000 米比赛配速、或略快一点，六组尽量保持同一速度，别第一组冲爆。",
+        "组间休息：慢跑或慢走 200 米（约 90～120 秒），心率没完全平复就开始下一组，这才是间歇。",
+        "新手从 4 组起步，每 1～2 周加 1 组，最多到 6～8 组；一旦快跑段明显掉速、动作变形就停止加量。",
+        "频率：每周 1 次即可，前后安排轻松跑或休息，不要连续两天上强度。",
+        "练前充分热身、练后慢走拉伸，用本站计时器设好快跑慢跑时长和组数，不用一直看表。"
+      ],
+      rel:[
+        {text:"间歇跑计时器",href:"interval-timer.html"},
+        {text:"配速计算器",href:"pace-calculator.html"},
+        {text:"知识库：间歇跑",href:"knowledge.html"}
+      ]
+    },
+    {
+      title:"有氧慢跑（LSD）怎么跑才不白练", cat:"train",
+      tags:["有氧","慢跑","LSD","心率","基础耐力"],
+      line:"跑得太慢没效果？恰恰相反，慢跑是中长跑的地基。",
+      points:[
+        "强度判断：跑的时候能完整说出一句话、不喘到断句，大约是最大心率的 60%～75%（Z2 区间）。",
+        "常见错误是「慢跑」跑成了中速跑，每次都很累，既没练到有氧，又挤占了恢复。",
+        "建议每周 1～2 次轻松跑，时间 20～40 分钟，速度刻意放慢，重点是持续而不是快。",
+        "可以用「三步一吸三步一呼」放慢节奏，或者和同学边跑边聊天，聊得动就说明强度合适。",
+        "基础打好后，间歇和测试的后程才顶得住；这是提分路上最容易被忽视的一块。"
+      ],
+      rel:[
+        {text:"心率区间计算器",href:"heart-rate-zones.html"},
+        {text:"知识库：有氧基础",href:"knowledge.html"}
+      ]
+    },
+    {
+      title:"15 分钟跑者自重力量课（无需器械）", cat:"train",
+      tags:["力量","核心","自重","深蹲","臀桥","伤病预防"],
+      line:"力量是跑出来的，也是蹲出来、撑出来的。",
+      points:[
+        "每个动作 30～45 秒、组间休息 20 秒，循环 2～3 轮，每周 2 次，放在轻松跑日或单独练。",
+        "下肢：徒手深蹲、弓步蹲、臀桥、提踵——强化蹬摆力量和小腿、臀部。",
+        "核心：平板支撑、死虫式、侧平板——稳住躯干，跑起来不晃、落地更稳。",
+        "膝盖易内扣的同学多做蚌式、侧抬腿强化臀中肌，对缓解膝盖痛很有帮助。",
+        "动作质量比数量重要，腰背痛就停下调整；间歇、测试当天不要再大强度练腿。"
+      ],
+      rel:[
+        {text:"知识库：力量训练与核心",href:"knowledge.html"}
+      ]
+    },
+    {
+      title:"跑前热身 + 跑后拉伸完整流程", cat:"train",
+      tags:["热身","拉伸","动态拉伸","冷身","拉伤"],
+      line:"热身 8 分钟，能帮你躲过绝大多数拉伤。",
+      points:[
+        "跑前：先慢跑或跳绳 5～8 分钟到微微出汗，再做高抬腿、后踢腿、小步跑、弓步走、侧弓步、开合跳等动态动作。",
+        "强度课或考试前，再加 2～3 次 60～80 米逐级加速，让身体进入快节奏。",
+        "跑前不要长时间静态压腿，肌肉被拉长放松后反而影响发力，静态拉伸留到跑后。",
+        "跑后：先慢走 3～5 分钟让心率回落，再对小腿、大腿前侧、大腿后侧、臀部、髂腰肌各静态拉伸 20～30 秒。",
+        "拉伸到轻微酸胀即可，不要追求疼；有泡沫轴可放松大腿和小腿，别直接压关节和骨头。"
+      ],
+      rel:[
+        {text:"知识库：跑前热身",href:"knowledge.html"},
+        {text:"知识库：跑后拉伸",href:"knowledge.html"}
+      ]
+    },
+    {
+      title:"分清「正常酸痛」和「受伤的疼」", cat:"recover",
+      tags:["恢复","酸痛","DOMS","损伤","停训"],
+      line:"肌肉酸可以练，关节和骨头的点痛要停。",
+      points:[
+        "延迟性酸痛（DOMS）：跑后 1～2 天最明显，是大片肌肉酸胀、对称出现，活动开后会减轻，属正常。",
+        "损伤疼痛：多在固定的某一点（膝盖、胫骨、足底、跟腱），刺痛或锐痛，按压痛、跑起来加重，甚至走路也痛。",
+        "处理原则：肌肉酸可做轻松慢跑或休息恢复；出现点痛、肿胀、跛行、打软腿，立刻停跑改低冲击运动。",
+        "疼痛超过 3～5 天不缓解、逐渐加重，或出现麻木、关节卡顿，要及时就医，别硬扛。",
+        "记住 RICE：急性期休息、冰敷、加压、抬高；受伤期间可以游泳、骑车维持体能。"
+      ],
+      rel:[
+        {text:"知识库：跑步膝",href:"knowledge.html"},
+        {text:"知识库：胫骨应力综合征",href:"knowledge.html"}
+      ]
+    },
+    {
+      title:"学生跑者三大常见伤痛怎么处理", cat:"recover",
+      tags:["伤病","跑步膝","胫骨","足底","处理"],
+      line:"绝大多数学生跑伤，都来自跑量猛增和力量不足。",
+      points:[
+        "跑步膝（膝盖前侧痛）：暂停冲刺和间歇，靠墙静蹲、臀桥强化股四头肌和臀部，减少跑量。",
+        "胫骨痛（小腿骨头边酸）：避开水泥硬地、改塑胶跑道，跑后冰敷，练提踵增强小腿；固定一点剧痛要就医排除应力性骨折。",
+        "足底/脚跟痛（晨起第一步痛）：用筋膜球踩足底、拉伸小腿、循序练提踵，检查跑鞋是否过软塌陷。",
+        "共性对策：跑量每周增幅不超过约 10%、穿还有缓冲的鞋、加力量训练、疼痛期改游泳骑车。",
+        "别把伤痛当「意志不坚定」硬练，小伤拖成慢性伤，损失的训练时间远多于停几天。"
+      ],
+      rel:[
+        {text:"知识库：足底筋膜炎",href:"knowledge.html"},
+        {text:"知识库：跑鞋与装备",href:"knowledge.html"}
+      ]
+    },
+    {
+      title:"恢复没做好的 5 个信号", cat:"recover",
+      tags:["恢复","晨脉","疲劳","睡眠","过度训练"],
+      line:"身体在喊停之前，通常已经提醒过好几次。",
+      points:[
+        "信号一：连续几天起床静息心率比平时高 5～10 次/分。",
+        "信号二：起床疲惫、没精神，对训练提不起兴趣，情绪低落。",
+        "信号三：同样的配速，心率明显更高、跑完更累。",
+        "信号四：食欲变差、睡眠变差、小伤痛迟迟不好。",
+        "信号五：成绩连续下滑。出现 2～3 个信号就该安排减量或休息，把睡眠和碳水补回来。"
+      ],
+      rel:[
+        {text:"心率区间计算器",href:"heart-rate-zones.html"},
+        {text:"知识库：睡眠与恢复",href:"knowledge.html"}
+      ]
+    },
+    {
+      title:"怎么写一份有用的训练复盘", cat:"review",
+      tags:["复盘","记录","模板","打卡","总结"],
+      line:"不复盘的训练，跑完就忘；记下来的问题，才会真的改进。",
+      points:[
+        "复盘不用写长，关键是记下「配速/体感 + 一个问题 + 一个改进」，长期看就是进步轨迹。",
+        "重点记三件事：今天哪里做得好、哪里崩了、下次具体改什么（要可执行，而不是「下次努力」）。",
+        "可以用本站「跑步打卡」记录距离用时，再用下面模板补体感和反思。",
+        "下面是可直接复制的复盘模板："
+      ],
+      tpl:"日期：\n天气 / 场地：\n训练内容（类型 + 距离 + 组数）：\n配速 / 用时：\n体感（1～10 分）：\n哪里不舒服：\n今天做得好的：\n要改进的：\n下次具体目标：",
+      rel:[
+        {text:"去跑步打卡",href:"checkin.html"}
+      ]
+    },
+    {
+      title:"一次 400 米间歇课的复盘示例", cat:"review",
+      tags:["复盘","间歇跑","示例","配速","掉速"],
+      line:"用真实例子看模板怎么填，照着改成自己的。",
+      points:[
+        "这是一份填写示例（数据为示范，请替换成自己的真实记录）：",
+        "从示例能看出：问题不是「不够拼」，而是前两组太快、体能分配不均；改进也很具体——前两组压配速、组间多走 30 秒。",
+        "坚持这样记 4～6 周，你会清楚看到自己配速和掉速组次的变化。"
+      ],
+      tpl:"日期：10月12日 周六\n天气 / 场地：晴 / 学校塑胶跑道\n训练内容：400m × 6 组，组间慢跑 200m\n配速 / 用时：第1组 3'20\"，第4组起掉到 3'35\"\n体感：7 分，第 5 组大腿发沉\n哪里不舒服：无，呼吸在第 4 组后偏乱\n今天做得好的：热身充分、摆臂没乱\n要改进的：前两组冲太快，后程掉速\n下次具体目标：前两组压到 3'25\"，组间多走 30 秒",
+      rel:[
+        {text:"间歇跑计时器",href:"interval-timer.html"},
+        {text:"去跑步打卡",href:"checkin.html"}
+      ]
+    }
+  ];
+
+  /* ---------- 渲染分类按钮 ---------- */
+  var activeCat = "all";
+  var kwInput = $("kw");
+
+  CATS.forEach(function(c){
+    var b = document.createElement("button");
+    b.textContent = c.name;
+    b.setAttribute("data-cat", c.key);
+    if(c.key === "all") b.classList.add("on");
+    b.addEventListener("click", function(){
+      activeCat = c.key;
+      document.querySelectorAll("#cats button").forEach(function(x){ x.classList.remove("on"); });
+      b.classList.add("on");
+      render();
+    });
+    $("cats").appendChild(b);
+  });
+
+  /* ---------- 转义与关键词高亮 ---------- */
+  function esc(s){ return s.replace(/[&<>"]/g, function(m){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]; }); }
+  function hl(text, q){
+    var safe = esc(text);
+    if(!q) return safe;
+    var qs = q.trim().split(/\s+/).filter(Boolean).map(function(w){ return w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); });
+    if(!qs.length) return safe;
+    return safe.replace(new RegExp("(" + qs.join("|") + ")", "gi"), "<mark>$1</mark>");
+  }
+
+  /* ---------- 渲染结果 ---------- */
+  function catName(key){ var n=""; CATS.forEach(function(c){ if(c.key===key) n=c.name; }); return n; }
+
+  function render(){
+    var q = kwInput.value.trim();
+    var list = DB.filter(function(it){
+      if(activeCat !== "all" && it.cat !== activeCat) return false;
+      if(!q) return true;
+      var hay = (it.title + " " + it.tags.join(" ") + " " + it.points.join(" ") + " " + (it.tpl||"")).toLowerCase();
+      return q.toLowerCase().split(/\s+/).every(function(w){ return hay.indexOf(w) !== -1; });
+    });
+
+    $("meta").textContent = q
+      ? ("关键词「" + q + "」找到 " + list.length + " 篇笔记")
+      : ("共 " + list.length + " 篇训练笔记");
+
+    if(list.length === 0){
+      $("results").innerHTML = '<div class="empty"><span class="big">—</span>没有找到相关笔记<br>试试换个关键词，或切换到「全部」分类</div>';
+      return;
+    }
+    var html = "";
+    list.forEach(function(it){
+      html += '<article class="n-item">'
+        + '<h3><span class="cat-dot">' + catName(it.cat) + '</span>' + hl(it.title, q) + '</h3>'
+        + '<div class="tags">' + it.tags.map(function(t){ return "<i>" + hl(t, q) + "</i>"; }).join("") + '</div>'
+        + '<ul>' + it.points.map(function(p){ return "<li>" + hl(p, q) + "</li>"; }).join("") + '</ul>'
+        + (it.tpl ? '<div class="tpl">' + hl(it.tpl, q) + '</div>' : '')
+        + '<div class="one-line">一句话：' + hl(it.line, q) + '</div>'
+        + (it.rel && it.rel.length
+            ? '<div class="rel"><span class="lab">相关：</span>'
+              + it.rel.map(function(r){ return '<a href="' + r.href + '">' + esc(r.text) + '</a>'; }).join("")
+              + '</div>'
+            : '')
+        + '</article>';
+    });
+    $("results").innerHTML = html;
+  }
+
+  /* ---------- 事件绑定 ---------- */
+  kwInput.addEventListener("input", render);
+  document.querySelectorAll(".hot button").forEach(function(b){
+    b.addEventListener("click", function(){
+      kwInput.value = b.getAttribute("data-q");
+      activeCat = "all";
+      document.querySelectorAll("#cats button").forEach(function(x){ x.classList.toggle("on", x.getAttribute("data-cat")==="all"); });
+      render();
+      kwInput.focus();
+    });
+  });
+
+  $("year").textContent = new Date().getFullYear();
+  render();
+})();
+</script>
+</body>
+</html>
