@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>热身拉伸 · 跑道笔记</title>
+<meta name="description" content="操场照着做：跑前动态热身与赛后静态拉伸全套动作，语音倒计时、自动连播、动作要点，中考800/1000米与中长跑适用。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231668dc'/%3E%3Cg stroke='white' stroke-width='4' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 50 L30 18'/%3E%3Cpath d='M27 50 L33 18'/%3E%3Cpath d='M40 50 L36 18'/%3E%3Cpath d='M53 50 L39 18'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+/* ===== 热身拉伸（蓝白运动风，与站点统一，纯内联无外部资源） ===== */
+:root{
+  --blue:#1668dc; --blue-deep:#0a3d8f; --blue-bright:#3d8bfd;
+  --blue-soft:#eaf2ff; --ink:#16233b; --muted:#5a6b85;
+  --line:#dbe7f7; --bg:#f5f9ff; --white:#fff;
+  --radius:14px; --shadow:0 8px 24px rgba(16,60,130,.08);
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.7; -webkit-font-smoothing:antialiased;
+}
+.container{ max-width:760px; margin:0 auto; padding:0 20px; }
+
+/* 顶部蓝色头 */
+.site-header{ background:linear-gradient(160deg,var(--blue-deep),var(--blue)); color:#fff; padding:26px 0 58px; }
+.header-row{ display:flex; align-items:center; gap:12px; }
+.header-row svg{ width:36px; height:36px; }
+.header-row h1{ font-size:21px; font-weight:800; }
+.header-row small{ display:block; font-size:11px; opacity:.8; letter-spacing:2px; }
+.header-link{ margin-left:auto; font-size:13.5px; color:#cfe2ff; text-decoration:underline; }
+
+.card{ background:var(--white); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; margin-bottom:18px; }
+.head-card{ margin-top:-34px; }
+.head-card h2{ font-size:18px; font-weight:800; margin-bottom:4px; }
+.head-card .sub{ font-size:13.5px; color:var(--muted); margin-bottom:16px; }
+
+/* 模式切换 */
+.modes{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.modes button{
+  padding:14px 10px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;
+  border:1.5px solid var(--line); background:#fbfdff; border-radius:12px; color:var(--ink);
+  transition:all .18s;
+}
+.modes button .d{ display:block; font-size:12px; font-weight:500; color:var(--muted); margin-top:3px; }
+.modes button.on{ border-color:var(--blue); background:var(--blue); color:#fff; box-shadow:0 6px 16px rgba(22,104,220,.25); }
+.modes button.on .d{ color:rgba(255,255,255,.85); }
+.mode-meta{ font-size:13px; color:var(--muted); margin-top:12px; text-align:center; }
+
+/* 播放器 */
+.player{ text-align:center; }
+.stage{ position:relative; width:236px; height:236px; margin:6px auto 16px; }
+.ring{ transform:rotate(-90deg); width:100%; height:100%; }
+.ring .track{ fill:none; stroke:var(--blue-soft); stroke-width:12; }
+.ring .prog{ fill:none; stroke:var(--blue); stroke-width:12; stroke-linecap:round;
+  transition:stroke-dashoffset .3s linear; }
+/* 环中央：倒计时（动作示意动画已移除，预留 .stage-anim 占位区） */
+.stage-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.stage-anim{ width:72px; height:72px; margin-bottom:4px; display:flex; align-items:center; justify-content:center; }
+.count{ font-size:42px; font-weight:800; color:var(--blue-deep); font-variant-numeric:tabular-nums; line-height:1; }
+.count small{ font-size:15px; color:var(--muted); font-weight:600; }
+
+.step-name{ font-size:22px; font-weight:800; color:var(--blue-deep); margin-bottom:4px; }
+.step-no{ font-size:13px; color:var(--muted); margin-bottom:10px; }
+.tips{ font-size:14.5px; color:#33455f; background:#f8fbff; border-left:3px solid var(--blue);
+  border-radius:0 8px 8px 0; padding:9px 14px; text-align:left; max-width:460px; margin:0 auto 16px; }
+.side-tip{ display:inline-block; font-size:12.5px; font-weight:700; color:#fff; background:var(--blue-bright);
+  border-radius:999px; padding:3px 12px; margin-bottom:12px; }
+
+/* 控制按钮 */
+.controls{ display:flex; gap:10px; justify-content:center; align-items:center; }
+.btn{
+  border:none; cursor:pointer; font-family:inherit; font-weight:700; border-radius:12px;
+  transition:background .15s, transform .1s;
+}
+.btn:active{ transform:scale(.96); }
+.btn-main{ width:132px; height:52px; font-size:17px; background:var(--blue); color:#fff; box-shadow:0 8px 20px rgba(22,104,220,.28); }
+.btn-main:hover{ background:var(--blue-bright); }
+.btn-sub{ width:74px; height:46px; font-size:14px; background:var(--blue-soft); color:var(--blue); }
+.btn-sub:hover{ background:#dceaff; }
+.btn-reset{ margin-top:14px; background:transparent; color:var(--muted); font-size:13px; padding:4px 14px; }
+.btn-reset:hover{ color:var(--blue); }
+
+/* 动作列表 */
+.list-title{ font-size:15px; font-weight:800; margin-bottom:10px; color:var(--blue-deep); }
+.step-list{ list-style:none; }
+.step-list li{
+  display:flex; align-items:center; gap:12px; padding:11px 12px; border:1px solid var(--line);
+  border-radius:10px; margin-bottom:8px; cursor:pointer; background:#fbfdff; transition:all .15s;
+}
+.step-list li:hover{ border-color:var(--blue-bright); background:var(--blue-soft); }
+.step-list li.done{ opacity:.5; }
+.step-list li.active{ border-color:var(--blue); background:var(--blue); color:#fff; box-shadow:0 6px 16px rgba(22,104,220,.22); }
+.step-list li.active .sec{ background:rgba(255,255,255,.2); color:#fff; }
+.step-list li.active .nm{ color:#fff; }
+.step-list .idx{ flex:none; width:24px; height:24px; border-radius:50%; background:var(--blue-soft); color:var(--blue);
+  font-size:12.5px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.step-list li.active .idx{ background:rgba(255,255,255,.2); color:#fff; }
+.step-list .nm{ flex:1; font-size:14.5px; font-weight:600; }
+.step-list .sec{ flex:none; font-size:12.5px; color:var(--muted); background:#eef4fd; border-radius:999px; padding:2px 10px; font-variant-numeric:tabular-nums; }
+
+.note{ font-size:13px; color:var(--muted); }
+.note b{ color:var(--ink); }
+.finish{ text-align:center; padding:16px 0; }
+.finish .big{ font-size:20px; font-weight:800; color:var(--blue-deep); margin-bottom:6px; }
+
+.site-footer{ text-align:center; padding:10px 10px 30px; font-size:12.5px; color:var(--muted); }
+@media (max-width:560px){
+  .stage{ width:210px; height:210px; }
+  .count{ font-size:38px; }
+  .step-name{ font-size:19px; }
+}
+@media (prefers-reduced-motion:reduce){
+  .ring .prog{ transition:none; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-row">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <rect width="64" height="64" rx="14" fill="rgba(255,255,255,.16)"/>
+      <g stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none">
+        <circle cx="40" cy="16" r="5"/><path d="M40 22 L32 34 L38 44 L34 54"/>
+        <path d="M32 34 L22 32 L16 38"/><path d="M34 30 L46 28 L52 34"/>
+        <path d="M38 44 L28 48 L22 56"/><path d="M38 44 L48 50 L54 56"/>
+      </g>
+    </svg>
+    <h1>热身拉伸<small>WARM-UP &amp; COOL-DOWN</small></h1>
+    <a class="header-link" href="index.html">返回首页</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- 模式选择 -->
+  <section class="card head-card">
+    <h2>操场跟着做</h2>
+    <p class="sub">选择阶段，点“开始”会自动按顺序倒计时，每步结束有提示音；屏幕保持常亮，跟着做就行。</p>
+    <div class="modes">
+      <button id="modeWarm" class="on">跑前·动态热身<span class="d">激活身体、预防受伤</span></button>
+      <button id="modeCool">赛后·静态拉伸<span class="d">放松肌肉、缓解酸痛</span></button>
+    </div>
+    <p class="mode-meta" id="modeMeta"></p>
+  </section>
+
+  <!-- 播放器 -->
+  <section class="card player">
+    <div class="stage" id="stage">
+      <svg class="ring" viewBox="0 0 236 236" aria-hidden="true">
+        <circle class="track" cx="118" cy="118" r="104"/>
+        <circle class="prog" id="prog" cx="118" cy="118" r="104"/>
+      </svg>
+      <div class="stage-center">
+        <!-- ============================================================
+             动作示意动画占位（原跑步小人动画已撤下）
+             后续把动画代码放到这里即可：建议放进 <div class="stage-anim"></div>，
+             尺寸约 72×72，位于倒计时数字上方；无需改动倒计时逻辑。
+             ============================================================ -->
+        <div class="stage-anim" id="stageAnim"></div>
+        <div class="count" id="count">0:00</div>
+      </div>
+    </div>
+
+    <div class="step-name" id="stepName">准备开始</div>
+    <div class="step-no" id="stepNo">第 0 / 0 步</div>
+    <div class="side-tip" id="sideTip" style="display:none"></div>
+    <div class="tips" id="tips">选择上方阶段后点开始，跟着节奏做。</div>
+
+    <div class="controls">
+      <button class="btn btn-sub" id="prevBtn">上一步</button>
+      <button class="btn btn-main" id="playBtn">开始</button>
+      <button class="btn btn-sub" id="nextBtn">跳过</button>
+    </div>
+    <div><button class="btn btn-reset" id="resetBtn">重新开始</button></div>
+  </section>
+
+  <!-- 完成提示 -->
+  <section class="card" id="finishCard" style="display:none">
+    <div class="finish">
+      <div class="big">完成，干得漂亮！</div>
+      <p class="note" id="finishText">热身完成后再慢跑 1～2 分钟进入状态。</p>
+    </div>
+  </section>
+
+  <!-- 动作列表 -->
+  <section class="card">
+    <div class="list-title" id="listTitle">动作清单</div>
+    <ul class="step-list" id="stepList"></ul>
+  </section>
+
+  <!-- 注意事项 -->
+  <section class="card">
+    <div class="list-title">怎么做才到位</div>
+    <p class="note">
+      <b>热身：</b>做到身体微微发热、出薄汗、关节活动开即可，动作由慢到快，别一开始就猛冲。<br>
+      <b>拉伸：</b>每个动作保持到“有牵拉感但不疼”，匀速深呼吸，不要弹震、不要憋气。<br>
+      <b>两侧：</b>凡涉及左右腿的动作，左右各做同样时间。<br>
+      <b>不适：</b>关节有刺痛、旧伤发作立刻停止；本流程为通用参考，严重不适请就医。
+    </p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p style="margin-bottom:4px">定制网页小工具 · QQ 邮箱：<a href="mailto:765041959@qq.com" style="color:var(--blue)">765041959@qq.com</a></p>
+  <p>© <span id="year"></span> 跑道笔记 · 热身拉伸（通用流程，个体差异大，受伤请就医）</p>
+</footer>
+
+<script>
+/* ================= 动作数据：name=名称 sec=秒 tips=要点 side=换边提示（可选） ================= */
+var WARMUP = [
+  {name:"原地慢跑", sec:40, tips:"轻松原地踏步慢跑，手臂自然摆动，把心率慢慢提起来，先别冲。"},
+  {name:"高抬腿", sec:30, tips:"膝盖向前提到接近水平，前脚掌着地，上身挺直，节奏由慢到快。"},
+  {name:"后踢腿", sec:30, tips:"脚跟向臀部方向踢，两大腿尽量并拢，激活大腿后侧和臀部。"},
+  {name:"开合跳", sec:30, tips:"双脚开合并配合手臂上下开合，落地轻、用前脚掌缓冲，呼吸自然。"},
+  {name:"手臂绕环", sec:20, tips:"手臂伸直画大圆，向前 10 次、向后 10 次，活动开肩关节。"},
+  {name:"转髋绕环", sec:20, tips:"双手叉腰或抱头，髋关节画大圈，左右各 10 圈，把髋部打开。"},
+  {name:"弓步转体", sec:30, tips:"迈大步成弓步，前腿膝盖不超过脚尖，上身向前进腿一侧转，左右交替。"},
+  {name:"直腿前踢", sec:30, tips:"一条腿直着向前上方踢、对侧手轻触脚尖，激活大腿后侧，左右交替。"},
+  {name:"侧滑步", sec:30, tips:"半蹲姿势，左右横向滑步，重心压低，激活大腿内外侧和臀中肌。"},
+  {name:"加速跑过渡", sec:40, tips:"在直道上做 2～3 次 20～30 米逐级加速：先 60%、再 80%、最后接近比赛速度，充分唤醒后再正式开跑。"}
+];
+var COOLDOWN = [
+  {name:"小腿拉伸", sec:60, side:"左右各 30 秒", tips:"前腿弓、后腿伸直、后脚跟踩实，身体微前倾，感受小腿后侧牵拉。"},
+  {name:"大腿前侧（勾脚）", sec:60, side:"左右各 30 秒", tips:"站姿单手抓同侧脚踝拉向臀部，膝盖朝下不外翻，另一只手扶墙保持平衡。"},
+  {name:"大腿后侧（前屈）", sec:40, tips:"坐地一条腿伸直、另一条腿内收，上身从髋部向前压，背挺直，够不到脚没关系。"},
+  {name:"臀部（盘腿）", sec:60, side:"左右各 30 秒", tips:"坐姿把一侧脚踝搭到对侧膝盖上方，上身前倾，或仰卧抱膝把大腿往胸口带。"},
+  {name:"髋屈肌（弓步）", sec:60, side:"左右各 30 秒", tips:"后腿膝盖跪地、前腿 90 度，骨盆向前顶，感受后腿大腿根部前侧牵拉。"},
+  {name:"大腿内侧（分腿）", sec:40, tips:"坐地两脚脚掌相对、或双腿尽量分开，上身前压，背挺直，膝部可轻压。"},
+  {name:"胫骨前肌（跪坐）", sec:30, tips:"双膝跪坐、脚背贴地，身体微后坐，放松小腿前面；也可站姿勾脚尖顶地。"},
+  {name:"腰背放松", sec:40, tips:"仰卧双手抱膝轻轻前后滚动，或做猫牛式，让紧张的腰背慢慢放松下来。"}
+];
+
+/* ================= 状态与播放器 ================= */
+var MODES = { warm:{data:WARMUP, finish:"热身完成，再慢跑 1～2 分钟进入状态，准备开跑。"},
+              cool:{data:COOLDOWN, finish:"拉伸完成，慢慢补水、走动放松，别立刻坐下不动。"} };
+var mode = "warm";
+var steps = WARMUP;
+var idx = 0;
+var remain = 0;
+var total = 0;
+var playing = false;
+var timer = null;
+
+var $ = function(id){ return document.getElementById(id); };
+var R = 104;
+var CIRC = 2 * Math.PI * R;
+$("prog").style.strokeDasharray = CIRC.toFixed(1);
+$("prog").style.strokeDashoffset = CIRC.toFixed(1);
+
+function fmt(s){ var m = Math.floor(s/60); var x = s%60; return m + ":" + (x<10?"0":"") + x; }
+function totalSec(arr){ return arr.reduce(function(a,b){ return a+b.sec; },0); }
+
+/* 简短提示音（WebAudio，无需外部音频文件） */
+var actx = null;
+function beep(freq, dur){
+  try{
+    if(!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    var o = actx.createOscillator(), g = actx.createGain();
+    o.frequency.value = freq; o.type = "sine";
+    o.connect(g); g.connect(actx.destination);
+    g.gain.setValueAtTime(0.001, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.25, actx.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
+    o.start(); o.stop(actx.currentTime + dur);
+  }catch(e){}
+}
+
+/* 渲染列表 */
+function renderList(){
+  var html = "";
+  steps.forEach(function(st, i){
+    html += '<li data-i="'+i+'"><span class="idx">'+(i+1)+'</span>'
+          + '<span class="nm">'+st.name+'</span>'
+          + '<span class="sec">'+fmt(st.sec)+'</span></li>';
+  });
+  $("stepList").innerHTML = html;
+  Array.prototype.forEach.call($("stepList").children, function(li){
+    li.addEventListener("click", function(){
+      goTo(parseInt(li.getAttribute("data-i"),10));
+      if(!playing){ render(); }
+    });
+  });
+}
+
+/* 渲染当前一步 */
+function render(){
+  var st = steps[idx];
+  $("stepName").textContent = st.name;
+  $("stepNo").textContent = "第 " + (idx+1) + " / " + steps.length + " 步";
+  $("tips").textContent = st.tips;
+  if(st.side){ $("sideTip").style.display = "inline-block"; $("sideTip").textContent = st.side; }
+  else { $("sideTip").style.display = "none"; }
+  $("count").innerHTML = fmt(remain);
+  var p = st.sec ? remain/st.sec : 0;
+  $("prog").style.strokeDashoffset = (CIRC*(1-p)).toFixed(1);
+  Array.prototype.forEach.call($("stepList").children, function(li, i){
+    li.classList.toggle("active", i===idx);
+    li.classList.toggle("done", i<idx);
+  });
+  $("playBtn").textContent = playing ? "暂停" : "开始";
+  $("stage").classList.toggle("playing", playing);
+  $("stage").classList.toggle("paused", !playing);
+}
+
+function tick(){
+  if(remain > 0){
+    remain--;
+    if(remain <= 3 && remain > 0){ beep(720, 0.08); }   // 倒数 3、2、1 轻提示
+    render();
+  } else {
+    beep(980, 0.25);                                     // 本步结束提示
+    if(idx < steps.length-1){ idx++; remain = steps[idx].sec; render(); }
+    else { finish(); }
+  }
+}
+
+function start(){
+  if(playing){ pause(); return; }
+  if(idx >= steps.length){ reset(); }
+  if(remain === 0){ remain = steps[idx].sec; }
+  playing = true; beep(560, 0.1);
+  render();
+  timer = setInterval(tick, 1000);
+}
+function pause(){
+  playing = false; clearInterval(timer); render();
+}
+function goTo(i){
+  idx = Math.max(0, Math.min(steps.length-1, i));
+  remain = steps[idx].sec;
+  $("finishCard").style.display = "none";
+  if(playing){ clearInterval(timer); timer = setInterval(tick, 1000); }
+  render();
+}
+function next(){ if(idx < steps.length-1){ goTo(idx+1); } else { finish(); } }
+function prev(){ if(idx > 0){ goTo(idx-1); } }
+function reset(){
+  pause(); idx = 0; remain = steps[0].sec;
+  $("finishCard").style.display = "none";
+  $("stepName").textContent = "准备开始";
+  $("stepNo").textContent = "第 1 / " + steps.length + " 步";
+  $("tips").textContent = "点“开始”后跟着节奏做，每一步会自动倒计时。";
+  $("sideTip").style.display = "none";
+  $("count").innerHTML = fmt(steps[0].sec);
+  $("prog").style.strokeDashoffset = CIRC.toFixed(1);
+  Array.prototype.forEach.call($("stepList").children, function(li){ li.classList.remove("active","done"); });
+  $("stepList").children[0].classList.add("active");
+  $("stage").classList.remove("playing","paused");
+  $("playBtn").textContent = "开始";
+}
+function finish(){
+  pause();
+  idx = steps.length;
+  $("prog").style.strokeDashoffset = "0";
+  $("finishText").textContent = MODES[mode].finish;
+  $("finishCard").style.display = "block";
+  beep(880, 0.15); setTimeout(function(){ beep(1100, 0.3); }, 180);
+}
+
+/* 切换模式 */
+function setMode(m){
+  mode = m; steps = MODES[m].data;
+  pause();
+  $("modeWarm").classList.toggle("on", m==="warm");
+  $("modeCool").classList.toggle("on", m==="cool");
+  $("listTitle").textContent = m==="warm" ? "跑前动态热身动作" : "赛后静态拉伸动作";
+  var t = totalSec(steps);
+  $("modeMeta").textContent = (m==="warm" ? "跑前热身" : "赛后拉伸") + "共 " + steps.length + " 个动作，约 " + Math.round(t/60) + " 分钟";
+  $("finishCard").style.display = "none";
+  renderList();
+  reset();
+}
+
+/* 事件绑定 */
+$("playBtn").addEventListener("click", start);
+$("prevBtn").addEventListener("click", prev);
+$("nextBtn").addEventListener("click", next);
+$("resetBtn").addEventListener("click", reset);
+$("modeWarm").addEventListener("click", function(){ setMode("warm"); });
+$("modeCool").addEventListener("click", function(){ setMode("cool"); });
+$("year").textContent = new Date().getFullYear();
+
+/* 屏幕保持常亮（支持的浏览器上生效） */
+var wake = null;
+if("wakeLock" in navigator){
+  navigator.wakeLock.request("screen").then(function(l){ wake = l; }).catch(function(){});
+  document.addEventListener("visibilitychange", function(){
+    if(wake !== null && document.visibilityState === "visible"){
+      navigator.wakeLock.request("screen").then(function(l){ wake = l; }).catch(function(){});
+    }
+  });
+}
+
+setMode("warm");
+</script>
+</body>
+</html>
