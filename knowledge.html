@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>跑步知识库 · 跑道笔记</title>
+<meta name="description" content="跑步训练知识库：搜索恢复、间歇跑、乳酸阈值、有氧基础、损伤预防、营养等中长跑训练理论，关键词检索。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231668dc'/%3E%3Cg stroke='white' stroke-width='4' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 50 L30 18'/%3E%3Cpath d='M27 50 L33 18'/%3E%3Cpath d='M40 50 L36 18'/%3E%3Cpath d='M53 50 L39 18'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+/* ===== 跑步知识库样式（蓝白运动风，与站点统一，纯内联无外部资源） ===== */
+:root{
+  --blue:#1668dc; --blue-deep:#0a3d8f; --blue-bright:#3d8bfd;
+  --blue-soft:#eaf2ff; --ink:#16233b; --muted:#5a6b85;
+  --line:#dbe7f7; --bg:#f5f9ff; --white:#fff;
+  --radius:14px; --shadow:0 8px 24px rgba(16,60,130,.08);
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.75; -webkit-font-smoothing:antialiased;
+}
+.container{ max-width:860px; margin:0 auto; padding:0 20px; }
+
+.site-header{ background:linear-gradient(160deg,var(--blue-deep),var(--blue)); color:#fff; padding:26px 0 58px; }
+.header-row{ display:flex; align-items:center; gap:12px; }
+.header-row svg{ width:36px; height:36px; }
+.header-row h1{ font-size:21px; font-weight:800; }
+.header-row small{ display:block; font-size:11px; opacity:.8; letter-spacing:2px; }
+.header-link{ margin-left:auto; font-size:13.5px; color:#cfe2ff; text-decoration:underline; }
+
+.card{ background:var(--white); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; margin-bottom:18px; }
+.head-card{ margin-top:-34px; }
+.head-card h2{ font-size:18px; font-weight:800; margin-bottom:4px; }
+.head-card .sub{ font-size:13.5px; color:var(--muted); margin-bottom:16px; }
+
+/* 搜索框 */
+.search-row{ display:flex; gap:10px; }
+.search-row input{
+  flex:1; height:46px; padding:0 14px; font-size:16px; border:1.5px solid var(--line);
+  border-radius:10px; background:#fbfdff; outline:none; font-family:inherit;
+}
+.search-row input:focus{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(22,104,220,.12); background:#fff; }
+.search-row button{
+  height:46px; padding:0 22px; border:none; border-radius:10px; background:var(--blue);
+  color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;
+}
+.search-row button:hover{ background:var(--blue-bright); }
+
+/* 分类 tab */
+.cats{ display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 10px; }
+.cats button{
+  padding:6px 14px; font-size:13.5px; border:1.5px solid var(--line); background:#fbfdff;
+  border-radius:999px; cursor:pointer; color:var(--ink); font-family:inherit;
+}
+.cats button.on, .cats button:hover{ border-color:var(--blue); color:var(--blue); background:var(--blue-soft); }
+
+/* 热门关键词 */
+.hot{ display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-top:6px; }
+.hot .lab{ font-size:12.5px; color:var(--muted); }
+.hot button{
+  padding:3px 11px; font-size:12.5px; border:1px dashed var(--line); background:#fff;
+  border-radius:999px; cursor:pointer; color:var(--muted); font-family:inherit;
+}
+.hot button:hover{ border-color:var(--blue); color:var(--blue); }
+
+/* 结果 */
+.result-meta{ font-size:13px; color:var(--muted); margin:2px 2px 12px; }
+.k-item{
+  background:var(--white); border:1px solid var(--line); border-radius:12px;
+  padding:18px 20px; margin-bottom:14px; box-shadow:var(--shadow);
+}
+.k-item h3{ font-size:17px; font-weight:800; color:var(--blue-deep); margin-bottom:6px; display:flex; align-items:center; gap:9px; }
+.k-item h3 .cat-dot{ flex:none; font-size:11px; font-weight:700; color:#fff; background:var(--blue); border-radius:6px; padding:2px 8px; }
+.k-item .tags{ margin-bottom:8px; }
+.k-item .tags i{
+  display:inline-block; font-style:normal; font-size:11.5px; color:var(--blue);
+  background:var(--blue-soft); border-radius:6px; padding:1px 8px; margin-right:6px;
+}
+.k-item ul{ list-style:none; }
+.k-item li{ position:relative; padding-left:18px; margin:5px 0; font-size:14.5px; }
+.k-item li::before{ content:""; position:absolute; left:2px; top:11px; width:6px; height:6px; border-radius:50%; background:var(--blue-bright); }
+.k-item .one-line{ font-size:14px; color:var(--muted); background:#f8fbff; border-left:3px solid var(--blue); padding:7px 12px; border-radius:0 8px 8px 0; margin-top:10px; }
+mark{ background:#ffe9a8; color:inherit; border-radius:3px; padding:0 1px; }
+.empty{ text-align:center; color:var(--muted); padding:46px 10px; font-size:14.5px; }
+.empty .big{ font-size:34px; display:block; margin-bottom:10px; }
+
+.site-footer{ text-align:center; padding:10px 10px 30px; font-size:12.5px; color:var(--muted); }
+@media (max-width:560px){
+  .search-row{ flex-direction:column; }
+  .search-row button{ width:100%; }
+}
+@media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-row">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <rect width="64" height="64" rx="14" fill="rgba(255,255,255,.16)"/>
+      <g stroke="#fff" stroke-width="4" stroke-linecap="round">
+        <path d="M14 50 L30 18"/><path d="M27 50 L33 18"/><path d="M40 50 L36 18"/><path d="M53 50 L39 18"/>
+      </g>
+    </svg>
+    <h1>跑步知识库<small>RUNNING KNOWLEDGE</small></h1>
+    <a class="header-link" href="index.html">返回首页</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- 搜索与筛选 -->
+  <section class="card head-card">
+    <h2>训练理论速查</h2>
+    <p class="sub">输入关键词（如「恢复」「间歇」「乳酸」「膝盖」），检索对应训练知识；也可按分类浏览。</p>
+
+    <div class="search-row">
+      <input type="search" id="kw" placeholder="搜索训练知识，例如：超量恢复、间歇跑、步频、膝盖…">
+      <button id="clearBtn" type="button" style="background:#fff;color:var(--blue);border:1.5px solid var(--line);padding:0 16px;display:none">清除</button>
+    </div>
+
+    <div class="cats" id="cats"></div>
+
+    <div class="hot">
+      <span class="lab">热门：</span>
+      <button data-q="超量恢复">超量恢复</button>
+      <button data-q="间歇跑">间歇跑</button>
+      <button data-q="乳酸">乳酸阈值</button>
+      <button data-q="膝盖">跑步膝</button>
+      <button data-q="步频">步频</button>
+      <button data-q="中考">中考1000米</button>
+    </div>
+  </section>
+
+  <!-- 结果 -->
+  <div class="result-meta" id="meta"></div>
+  <div id="results"></div>
+</main>
+
+<footer class="site-footer">
+  <p style="margin-bottom:4px">定制网页小工具 · QQ 邮箱：<a href="mailto:765041959@qq.com" style="color:var(--blue)">765041959@qq.com</a></p>
+  <p>© <span id="year"></span> 跑道笔记 · 跑步知识库（内容为通识科普，身体不适请咨询专业医生）</p>
+</footer>
+
+<script>
+/* ============================================================
+   跑步知识库（原生 JS）
+   数据结构：cat 分类 / tags 关键词 / line 一句话 / points 要点
+   搜索范围：标题 + 标签 + 要点正文；结果高亮命中词
+   ============================================================ */
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* 分类定义：key → 名称 */
+  var CATS = [
+    {key:"all",      name:"全部"},
+    {key:"train",    name:"训练方法"},
+    {key:"physio",   name:"运动生理"},
+    {key:"recover",  name:"恢复"},
+    {key:"injury",   name:"损伤预防"},
+    {key:"fuel",     name:"营养装备"}
+  ];
+
+  /* ---------- 知识库条目（可持续追加） ---------- */
+  var DB = [
+    {
+      title:"超量恢复", cat:"recover",
+      tags:["恢复","超量恢复","训练原理","休息"],
+      line:"成绩不是在跑道上长出来的，而是在训练后的休息中长出来的。",
+      points:[
+        "训练时肌肉、糖原和神经系统被消耗，身体机能短暂下降；休息后身体不仅会回到原有水平，还会短暂超过原来，这段「超额」就是超量恢复。",
+        "能力提升的逻辑是：训练 → 疲劳 → 恢复 → 超量恢复。上强度后通常需要 24～48 小时再安排下一次高强度。",
+        "疲劳没恢复就再练，会过度疲劳、成绩反降甚至受伤；休息太久错过超量恢复窗口，训练效果也会打折。",
+        "对中考 800/1000 米：间歇跑、测试这类高强度课之间至少隔一天，中间安排轻松跑或休息。"
+      ]
+    },
+    {
+      title:"渐进超负荷与 10% 原则", cat:"train",
+      tags:["训练方法","跑量","计划","超负荷"],
+      line:"想变强要慢慢加量，身体需要时间适应。",
+      points:[
+        "能力提升靠给身体略高于习惯的刺激（距离稍长、配速稍快、组数稍多），但必须循序渐进。",
+        "经验法则：每周总跑量增幅控制在约 10% 以内，不要一周暴增 30%～50%。",
+        "不要同时加量又加强度，这周加距离就别同时加间歇组数；一次只改变一个变量。",
+        "比赛或大强度课后安排减量周，让身体完成适应，而不是一直堆训练。"
+      ]
+    },
+    {
+      title:"间歇跑", cat:"train",
+      tags:["训练方法","间歇跑","速度","1000米","400米"],
+      line:"提升速度耐力和 1000/800 米成绩最有效的训练之一。",
+      points:[
+        "快跑段 + 未完全恢复的短休息反复进行，刺激心肺和肌肉的耐乳酸能力。",
+        "学生常见方案：400 米快跑（接近日标配速）+ 慢走/慢跑 200 米，重复 4～8 组。",
+        "休息不要歇到心率完全平复，否则练不到间歇效果；但也不能快跑段越跑越慢、动作变形。",
+        "适合已有有氧基础的人，新手先打慢跑基础，不要一上来就天天间歇。",
+        "本站「间歇跑计时器」可直接设置快跑、慢跑时长与组数。"
+      ]
+    },
+    {
+      title:"有氧基础 / 轻松跑", cat:"train",
+      tags:["训练方法","有氧","慢跑","基础","耐力"],
+      line:"慢跑是地基，决定你能跑多快而不崩。",
+      points:[
+        "长时间低强度慢跑主要靠有氧供能，增强心肺、毛细血管和线粒体，提高用脂肪供能的比例。",
+        "判断强度：跑步时能完整说出一句话，不喘到说不出话，大致是最大心率的 60%～75%。",
+        "每周安排 1～2 次轻松跑，为间歇和测试打底；没有有氧基础硬堆速度，容易受伤、进步停滞。",
+        "恢复性慢跑比完全休息更能帮助高强度课后排出代谢废物。"
+      ]
+    },
+    {
+      title:"乳酸阈值与节奏跑", cat:"physio",
+      tags:["运动生理","乳酸阈值","节奏跑","配速"],
+      line:"阈值越高，越能长时间顶住较快速度而不崩。",
+      points:[
+        "强度超过某临界点后乳酸快速堆积，呼吸变急、腿变沉，这个强度就是乳酸阈值。",
+        "节奏跑（阈值跑）以略低于该强度持续跑 20 分钟左右，训练身体清除乳酸的能力。",
+        "体感描述：偏吃力但能稳住，大约能说几个词而不是完整句子（约最大心率 80%～90%）。",
+        "对中长跑意义：让你在后程仍保持配速，而不是一过半程就明显掉速。"
+      ]
+    },
+    {
+      title:"最大摄氧量 VO₂max", cat:"physio",
+      tags:["运动生理","最大摄氧量","心肺","上限"],
+      line:"代表心肺利用氧气的极限能力。",
+      points:[
+        "最大摄氧量反映每分钟能利用多少氧气，是耐力潜能的重要指标。",
+        "高强度间歇是提升 VO₂max 的主要手段（约最大心率 90%～100% 的快跑段）。",
+        "它有遗传上限，练到一定程度后，成绩更多取决于乳酸阈值、跑步经济性和心理素质。",
+        "800/1000 米是有氧无氧混合供能，VO₂max 重要但不是唯一决定因素。"
+      ]
+    },
+    {
+      title:"心率区间（Z1–Z5）", cat:"physio",
+      tags:["运动生理","心率","训练区间","强度"],
+      line:"用心率把训练强度分成五档，练对强度才有效。",
+      points:[
+        "Z1 恢复热身、Z2 有氧基础、Z3 有氧耐力、Z4 乳酸阈值、Z5 极限间歇。",
+        "最大心率法：220 − 年龄，再乘百分比；更准的是 Karvonen 储备心率法，把静息心率也算进去。",
+        "轻松跑日就老实待在 Z2，不要把每次训练都跑成 Z4～Z5，强度堆积会拖垮恢复。",
+        "用本站「心率区间计算器」输入年龄和静息心率，直接得到每档 bpm 范围。"
+      ]
+    },
+    {
+      title:"极点与撞墙", cat:"physio",
+      tags:["运动生理","极点","撞墙","呼吸","糖原"],
+      line:"中途突然喘不上气、腿发沉，是正常生理现象。",
+      points:[
+        "「极点」是开跑后不久内脏供氧暂时跟不上肌肉，出现呼吸急促、腿沉；放慢速度、加深呼吸、坚持几分钟会缓解（第二次呼吸）。",
+        "「撞墙」多发生在长时间运动后，糖原耗尽，表现为突然乏力、配速骤降，靠日常有氧训练和赛前补糖预防。",
+        "800/1000 米中后程的难受更多是乳酸堆积和配速分配问题，前 200 米不要冲太快。",
+        "充分热身可明显减轻极点反应。"
+      ]
+    },
+    {
+      title:"步频与跑姿", cat:"train",
+      tags:["训练方法","步频","跑姿","落地","效率"],
+      line:"轻快的小步快频，比硬拉大步更省力护膝。",
+      points:[
+        "步频指每分钟落地次数，优秀中长跑选手多在 170～180 步/分左右（因人而异）。",
+        "稍高步频、落点靠近身体重心，能减少触地时间和膝盖冲击；跨大步、脚跟砸地制动明显、更伤膝。",
+        "不要刻意大幅改动作，可用节拍器或跑步歌单，每周小幅提高 3～5 步，逐步适应。",
+        "保持上身放松微前倾、摆臂前后不交叉，比纠结「前掌还是后掌落地」更重要。"
+      ]
+    },
+    {
+      title:"力量训练与核心", cat:"train",
+      tags:["训练方法","力量","核心","深蹲","俯卧撑"],
+      line:"跑步是用腿跑、靠核心稳住的。",
+      points:[
+        "臀、腿、核心力量能提升蹬伸效率、维持跑姿稳定，是预防损伤的关键。",
+        "学生可练深蹲、弓步、臀桥、提踵、平板支撑，每周 2 次、每次 15～20 分钟即可。",
+        "力量训练放在轻松跑日或单独安排，高强度间歇日不要再大重量练腿。",
+        "臀中肌薄弱常导致膝盖内扣、落地不稳，侧向蚌式、侧抬腿很有帮助。"
+      ]
+    },
+    {
+      title:"跑前热身", cat:"injury",
+      tags:["损伤预防","热身","动态拉伸","拉伤"],
+      line:"冷肌肉直接冲速度，最容易拉伤。",
+      points:[
+        "热身顺序：5～8 分钟慢跑或跳绳让身体微微出汗，再做动态动作，最后几次加速跑。",
+        "动态动作为主：高抬腿、后踢腿、小步跑、弓步走、侧弓步、开合跳，把髋膝踝活动开。",
+        "强度课前（间歇、测试）加 2～3 次 60～80 米逐级加速，让身体进入比赛节奏。",
+        "开跑前不要长时间做静态压腿，肌肉被拉长放松后反而更影响发力，静态拉伸留到跑后。"
+      ]
+    },
+    {
+      title:"跑后拉伸与放松", cat:"recover",
+      tags:["恢复","拉伸","放松","冷身"],
+      line:"跑完先慢走，再静态拉伸。",
+      points:[
+        "冲线后不要立刻坐下站立，先慢走 3～5 分钟让心率平稳、血液回流。",
+        "静态拉伸每个动作保持 20～30 秒、轻微酸胀即可，重点是小腿、大腿前侧、大腿后侧、臀部和髂腰肌。",
+        "拉伸不能直接「排乳酸」，但能缓解肌肉紧张、保持关节活动度。",
+        "有条件可泡沫轴放松大腿和小腿，注意别直接压在关节和骨头上。"
+      ]
+    },
+    {
+      title:"睡眠与恢复", cat:"recover",
+      tags:["恢复","睡眠","休息","超量恢复"],
+      line:"学生党最被低估的训练增强剂是睡觉。",
+      points:[
+        "训练后的修复和适应主要在深睡眠中完成，长期熬夜会直接拖慢成绩、增加受伤率。",
+        "青少年建议每天 8～9 小时睡眠；大强度训练或比赛前一天更要保证。",
+        "持续几天晨脉比平时高 5～10 次、起床疲惫、配速上不去，往往是恢复不足，应减量。",
+        "恢复手段优先级：睡眠 ＞ 合理饮食 ＞ 拉伸放松，保健品和恢复仪都在其后。"
+      ]
+    },
+    {
+      title:"跑步膝（髌股疼痛）", cat:"injury",
+      tags:["损伤预防","膝盖","跑步膝","髌股疼痛"],
+      line:"膝盖前方酸痛，大多是负荷和力量问题，不是半月板。",
+      points:[
+        "典型表现：膝盖骨周围酸痛，上下楼、下蹲、久坐起身时明显。",
+        "常见诱因：跑量突增、股四头肌和臀部力量不足、膝内扣、跑鞋过旧。",
+        "处理：暂停间歇和冲刺，改游泳/骑车等低冲击运动，强化臀中肌和股四头肌（如靠墙静蹲、臀桥）。",
+        "疼痛持续不缓解或出现肿胀、卡顿、打软腿，要及时就医，不要硬扛训练。"
+      ]
+    },
+    {
+      title:"胫骨应力综合征（外胫夹）", cat:"injury",
+      tags:["损伤预防","小腿","胫骨","骨膜炎"],
+      line:"小腿前内侧骨头边疼，常见于跑量猛增的新手。",
+      points:[
+        "表现：小腿胫骨旁按压痛、开跑时疼、跑开后可能减轻。",
+        "诱因：跑量突然增加、硬地跑、落脚过重、小腿力量不足、旧鞋缓冲衰减。",
+        "处理：减量、避开水泥硬地（选塑胶跑道）、跑后冰敷、加强提踵和小腿力量。",
+        "若固定一个点持续剧痛、走路也痛，要警惕应力性骨折，停止跑步并就医。"
+      ]
+    },
+    {
+      title:"足底筋膜炎与跟腱问题", cat:"injury",
+      tags:["损伤预防","足底","跟腱","脚跟痛"],
+      line:"晨起第一步脚心痛、跟腱发紧，要尽早处理。",
+      points:[
+        "足底筋膜炎：脚跟或足底晨起落地剧痛，走几步稍缓解；常因小腿紧张、足弓受力异常、跑鞋不当。",
+        "跟腱炎：跟腱按压痛、跑后或晨起僵硬，多与强度跳跃突增、热身不足有关。",
+        "自我处理：减少跑量和跳跃，用筋膜球踩足底、做小腿拉伸、循序渐进练提踵。",
+        "选鞋底不要过软塌陷，扁平足/高足弓可咨询是否需要足弓支撑。"
+      ]
+    },
+    {
+      title:"补水与电解质", cat:"fuel",
+      tags:["营养装备","补水","电解质","抽筋","中暑"],
+      line:"口渴才喝水，已经轻度脱水。",
+      points:[
+        "脱水会让心率升高、配速变慢；天热时 1 小时以上的跑步建议中途补水。",
+        "日常跑步前中后少量多次饮水；长时间大量出汗时，光喝白水不够，要补钠（电解质）。",
+        "电解质流失多可能引发抽筋、乏力，但抽筋也与疲劳、强度有关，不能全怪缺水。",
+        "高温天注意防中暑，出现头晕、恶心、停止出汗、皮肤发烫要立刻停下降温。"
+      ]
+    },
+    {
+      title:"碳水、糖原与赛前饮食", cat:"fuel",
+      tags:["营养装备","碳水","糖原","饮食","早餐"],
+      line:"中长跑烧的主要是糖原，碳水不是敌人。",
+      points:[
+        "学生训练量大，主食（米饭、面、杂粮）要吃够，长期低碳水会没力气、恢复差。",
+        "跑前 1～2 小时吃易消化的碳水（香蕉、面包），别空腹上间歇，也别吃油腻大餐。",
+        "800/1000 米考试当天：提前 1～2 小时吃七分饱的常规早餐，别尝试没吃过的新食物。",
+        "跑后 30～60 分钟内补充碳水加蛋白质（如牛奶、鸡蛋、面包），帮助恢复。"
+      ]
+    },
+    {
+      title:"跑鞋与装备", cat:"fuel",
+      tags:["营养装备","跑鞋","装备","选购"],
+      line:"合脚的跑鞋比任何花哨装备都重要。",
+      points:[
+        "选跑鞋以合脚、舒适为准，脚趾前留约一指空间，下午或运动后脚略胀时试鞋更准。",
+        "慢跑训练鞋以缓冲保护为主；碳板竞速鞋是给高水平比赛用的，学生日常训练不建议长期穿。",
+        "跑鞋有寿命，一般累计 500～800 公里后中底弹性衰减、保护变差，应更换。",
+        "棉袜吸汗后易磨脚，可选运动袜；跑步钥匙、校服口袋硬物赛前清空。"
+      ]
+    },
+    {
+      title:"中考 800/1000 米训练与比赛战术", cat:"train",
+      tags:["训练方法","中考","800米","1000米","配速","战术"],
+      line:"匀速起步、后程顶住，是最稳的考试策略。",
+      points:[
+        "配速分配：前 200 米不要被人群带快，按目标配速匀速跑；前程冲太猛后程必崩。",
+        "平时用本站配速计算器，把目标成绩换算成每圈（400 米）用时，练到对配速有感觉。",
+        "呼吸可尝试两步一吸两步一呼，配合摆臂节奏；最后 150～200 米靠摆臂带动、咬牙冲刺。",
+        "训练周期：先用 2～3 周有氧慢跑打底，再每周 1 次 400 米间歇、1 次节奏跑，考前 3～5 天减量调整。",
+        "考试当天：提前到场热身、跑 2～3 次加速，穿平时训练习惯的鞋，不要当天换新鞋。"
+      ]
+    }
+  ];
+
+  /* ---------- 渲染分类按钮 ---------- */
+  var activeCat = "all";
+  var kwInput = $("kw");
+
+  CATS.forEach(function(c){
+    var b = document.createElement("button");
+    b.textContent = c.name;
+    b.setAttribute("data-cat", c.key);
+    if(c.key === "all") b.classList.add("on");
+    b.addEventListener("click", function(){
+      activeCat = c.key;
+      document.querySelectorAll("#cats button").forEach(function(x){ x.classList.remove("on"); });
+      b.classList.add("on");
+      render();
+    });
+    $("cats").appendChild(b);
+  });
+
+  /* ---------- 关键词高亮 ---------- */
+  function esc(s){ return s.replace(/[&<>"]/g, function(m){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]; }); }
+  function hl(text, q){
+    var safe = esc(text);
+    if(!q) return safe;
+    var qs = q.trim().split(/\s+/).filter(Boolean).map(function(w){ return w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); });
+    if(!qs.length) return safe;
+    return safe.replace(new RegExp("(" + qs.join("|") + ")", "gi"), "<mark>$1</mark>");
+  }
+
+  /* ---------- 渲染结果 ---------- */
+  function catName(key){ var n=""; CATS.forEach(function(c){ if(c.key===key) n=c.name; }); return n; }
+
+  function render(){
+    var q = kwInput.value.trim();
+    var list = DB.filter(function(it){
+      if(activeCat !== "all" && it.cat !== activeCat) return false;
+      if(!q) return true;
+      var hay = (it.title + " " + it.tags.join(" ") + " " + it.points.join(" ")).toLowerCase();
+      return q.toLowerCase().split(/\s+/).every(function(w){ return hay.indexOf(w) !== -1; });
+    });
+
+    $("meta").textContent = q
+      ? ("关键词「" + q + "」找到 " + list.length + " 条相关知识")
+      : ("共 " + list.length + " 条知识");
+
+    if(list.length === 0){
+      $("results").innerHTML = '<div class="empty"><span class="big">🔍</span>没有找到相关知识<br>试试换个关键词，或切换到「全部」分类</div>';
+      return;
+    }
+    var html = "";
+    list.forEach(function(it){
+      html += '<article class="k-item">'
+        + '<h3><span class="cat-dot">' + catName(it.cat) + '</span>' + hl(it.title, q) + '</h3>'
+        + '<div class="tags">' + it.tags.map(function(t){ return "<i>" + hl(t, q) + "</i>"; }).join("") + '</div>'
+        + '<ul>' + it.points.map(function(p){ return "<li>" + hl(p, q) + "</li>"; }).join("") + '</ul>'
+        + '<div class="one-line">一句话：' + hl(it.line, q) + '</div>'
+        + '</article>';
+    });
+    $("results").innerHTML = html;
+  }
+
+  /* ---------- 事件绑定 ---------- */
+  kwInput.addEventListener("input", render);
+  document.querySelectorAll(".hot button").forEach(function(b){
+    b.addEventListener("click", function(){
+      kwInput.value = b.getAttribute("data-q");
+      activeCat = "all";
+      document.querySelectorAll("#cats button").forEach(function(x){ x.classList.toggle("on", x.getAttribute("data-cat")==="all"); });
+      render();
+      kwInput.focus();
+    });
+  });
+
+  $("year").textContent = new Date().getFullYear();
+  render();
+})();
+</script>
+</body>
+</html>
