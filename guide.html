@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实战指南 · 跑道笔记</title>
+<meta name="description" content="跑道笔记实战指南：学生平价跑鞋/运动袜/心率手环避雷，赛前饮食补糖与电解质（食堂版），起跑跟跑冲刺呼吸与中考体测考场避坑，纯经验不带货。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231668dc'/%3E%3Cg stroke='white' stroke-width='4' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 50 L30 18'/%3E%3Cpath d='M27 50 L33 18'/%3E%3Cpath d='M40 50 L36 18'/%3E%3Cpath d='M53 50 L39 18'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+/* ===== 实战指南（蓝白运动风，与站点统一，纯内联无外部资源） ===== */
+:root{
+  --blue:#1668dc; --blue-deep:#0a3d8f; --blue-bright:#3d8bfd;
+  --blue-soft:#eaf2ff; --ink:#16233b; --muted:#5a6b85;
+  --line:#dbe7f7; --bg:#f5f9ff; --white:#fff;
+  --ok:#16a34a; --warn:#d97706;
+  --radius:14px; --shadow:0 8px 24px rgba(16,60,130,.08);
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.75; -webkit-font-smoothing:antialiased;
+}
+.container{ max-width:860px; margin:0 auto; padding:0 20px; }
+
+.site-header{ background:linear-gradient(160deg,var(--blue-deep),var(--blue)); color:#fff; padding:26px 0 58px; }
+.header-row{ display:flex; align-items:center; gap:12px; }
+.header-row svg{ width:36px; height:36px; }
+.header-row h1{ font-size:21px; font-weight:800; }
+.header-row small{ display:block; font-size:11px; opacity:.8; letter-spacing:2px; }
+.header-link{ margin-left:auto; font-size:13.5px; color:#cfe2ff; text-decoration:underline; }
+
+.card{ background:var(--white); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; margin-bottom:16px; }
+.head-card{ margin-top:-34px; }
+.head-card h2{ font-size:18px; font-weight:800; margin-bottom:4px; }
+.head-card .sub{ font-size:13.5px; color:var(--muted); }
+
+/* 顶部 tab */
+.tabs{ display:flex; gap:8px; margin:14px 0 4px; }
+.tabs button{
+  flex:1; padding:11px 8px; font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit;
+  border:1.5px solid var(--line); background:#fbfdff; border-radius:12px; color:var(--ink);
+}
+.tabs button.on{ border-color:var(--blue); background:var(--blue); color:#fff; box-shadow:0 6px 16px rgba(22,104,220,.22); }
+.panel{ display:none; }
+.panel.show{ display:block; animation:fade .25s ease; }
+@keyframes fade{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:none; } }
+
+/* 内容卡 */
+.g-card{ background:var(--white); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin-bottom:14px; box-shadow:var(--shadow); }
+.g-card h3{ font-size:16.5px; font-weight:800; color:var(--blue-deep); margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+.g-card h3 .n{ flex:none; width:24px; height:24px; border-radius:7px; background:var(--blue); color:#fff; font-size:13px;
+  display:flex; align-items:center; justify-content:center; }
+.g-card ul{ list-style:none; }
+.g-card li{ position:relative; padding-left:18px; margin:6px 0; font-size:14.5px; }
+.g-card li::before{ content:""; position:absolute; left:2px; top:11px; width:6px; height:6px; border-radius:50%; background:var(--blue-bright); }
+.g-card li b{ color:var(--ink); }
+
+/* 可做 / 避雷 / 平替 提示框 */
+.box{ border-radius:8px; padding:9px 13px; margin-top:10px; font-size:13.5px; line-height:1.7; }
+.box.ok{ background:#eafaf0; border-left:3px solid var(--ok); color:#176332; }
+.box.no{ background:#fdf3e6; border-left:3px solid var(--warn); color:#8a4f06; }
+.box.tip{ background:#f3f7fd; border-left:3px solid var(--blue); color:#33455f; }
+.box b{ display:block; font-size:13px; margin-bottom:2px; }
+
+.section-title{ font-size:15px; font-weight:800; color:var(--blue-deep); margin:18px 4px 10px; }
+
+.site-footer{ text-align:center; padding:10px 10px 30px; font-size:12.5px; color:var(--muted); }
+@media (max-width:560px){
+  .tabs{ flex-direction:column; }
+  .card{ padding:18px; }
+}
+@media (prefers-reduced-motion:reduce){ .panel.show{ animation:none; } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-row">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <rect width="64" height="64" rx="14" fill="rgba(255,255,255,.16)"/>
+      <g stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none">
+        <path d="M14 50 L30 18"/><path d="M27 50 L33 18"/><path d="M40 50 L36 18"/><path d="M53 50 L39 18"/>
+      </g>
+    </svg>
+    <h1>实战指南<small>FIELD GUIDE</small></h1>
+    <a class="header-link" href="index.html">返回首页</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <section class="card head-card">
+    <h2>买装备、赛前吃、考场怎么跑</h2>
+    <p class="sub">都是学生跑出来的经验，无广告、不挂任何购买链接，价位只给区间，具体看自己穿着舒服。</p>
+    <div class="tabs">
+      <button class="on" data-t="gear">装备避雷</button>
+      <button data-t="food">饮食补给</button>
+      <button data-t="race">比赛技巧</button>
+    </div>
+  </section>
+
+  <!-- ============ 装备避雷 ============ -->
+  <section class="panel show" data-panel="gear">
+    <div class="section-title">跑鞋</div>
+    <div class="g-card">
+      <h3><span class="n">1</span>怎么选</h3>
+      <ul>
+        <li><b>中考/日常训练：</b>选「缓震慢跑鞋」或「轻量训练鞋」，鞋底能弯折、后跟有支撑，比花里胡哨重要。</li>
+        <li><b>鞋码留富余：</b>长距离脚会胀，脚尖到鞋头留约一根拇指宽；建议下午去试鞋，那时脚最大。</li>
+        <li><b>看旧鞋磨损：</b>鞋底外侧偏磨多偏正常，前掌内侧严重偏磨可考虑稳定款，拿不准就选中性缓震。</li>
+      </ul>
+      <div class="box ok"><b>学生预算</b>200～400 元的国产正规缓震/训练鞋足够日常和体测，不用追求贵价顶级鞋。</div>
+      <div class="box no"><b>这些别用来跑步</b>板鞋、帆布鞋、篮球鞋、老爹鞋、鞋底硬邦邦的休闲鞋，缺缓震和抓地，容易累、易受伤。</div>
+    </div>
+    <div class="g-card">
+      <h3><span class="n">2</span>碳板鞋 / 新鞋</h3>
+      <ul>
+        <li><b>碳板竞速鞋：</b>贵、需要较强腿部力量和配速基础，学生日常训练和体测通常用不上，别盲目跟风。</li>
+        <li><b>考试别穿新鞋：</b>正式上场至少磨合 30～50 公里，新鞋磨脚、不跟脚，考场风险大。</li>
+        <li><b>什么时候换：</b>中底踩塌、大底磨平、出现膝盖/小腿莫名酸，或累计约 500～800 公里，就该换。</li>
+        <li><b>防黑指甲：</b>鞋头留空间、鞋带靠近脚面的两孔系紧（脚跟锁系法），下坡顶脚会黑指甲。</li>
+      </ul>
+    </div>
+
+    <div class="section-title">运动袜</div>
+    <div class="g-card">
+      <ul>
+        <li>选<b>合成纤维的跑步袜/运动袜</b>，后跟和前掌加厚、中筒能护住脚踝，排汗不起泡。</li>
+        <li>不穿<b>纯棉袜</b>长距离跑——吸汗后贴脚、湿冷、更容易磨出水泡。</li>
+        <li>比赛/体测穿<b>已经穿习惯的旧袜子</b>，别穿新袜子上场，接缝没磨开容易磨脚。</li>
+      </ul>
+      <div class="box tip"><b>省钱点</b>十几块一双的专业跑步袜，比贵的纯棉袜更适合跑步，不看牌子看材质和厚度。</div>
+    </div>
+
+    <div class="section-title">心率手环 / 手表</div>
+    <div class="g-card">
+      <ul>
+        <li>手腕<b>光电测心率</b>在快跑、摆臂剧烈时误差不小，看区间和趋势可以，别太较真具体数字。</li>
+        <li>预算紧、刚入门：<b>可以先不买</b>，用「说话测试」——轻松跑能说出整句话，基本就是有氧区。</li>
+        <li>晨脉、静息心率用手机或手指也能测，不一定要靠手环。</li>
+        <li>真要买：看 GPS 定位、续航、佩戴舒适，别为一堆用不上的功能加价。</li>
+      </ul>
+      <div class="box no"><b>考场注意</b>多数中考体测不允许戴手环/手表进场，平时训练可以用，别在比赛里依赖它。</div>
+    </div>
+  </section>
+
+  <!-- ============ 饮食补给 ============ -->
+  <section class="panel" data-panel="food">
+    <div class="section-title">赛前吃什么</div>
+    <div class="g-card">
+      <h3><span class="n">1</span>大原则</h3>
+      <ul>
+        <li><b>高碳水、低脂肪、低纤维、好消化</b>，吃平时熟悉的食物，不搞特殊。</li>
+        <li>赛前 <b>2～3 小时</b>吃完正餐，量约平时七分饱；赛前 <b>1 小时</b>可再吃一小根香蕉或几片面包。</li>
+        <li>别空腹猛跑（容易低血糖），也别吃饱马上跑（岔气、反胃）。</li>
+      </ul>
+      <div class="box ok"><b>食堂版赛前早餐（任选）</b>
+        白粥 + 馒头/花卷；清汤面 + 一个鸡蛋；面包 + 香蕉；糯米饭、杂粮粥也可，按自己平时吃惯的来。</div>
+      <div class="box no"><b>赛前别碰</b>油炸、肥肉、大量牛奶（部分人乳糖不耐会拉肚子）、过多粗纤维蔬菜、冰的、没吃过的新东西。</div>
+    </div>
+    <div class="g-card">
+      <h3><span class="n">2</span>补糖（补碳水）</h3>
+      <ul>
+        <li><b>800 / 1000 米：</b>几分钟就结束，<b>不需要能量胶</b>，赛前靠日常主食和那根香蕉就够。</li>
+        <li><b>5 公里以内：</b>一般不用中途补，喝点水就行。</li>
+        <li><b>10 公里 / 半马：</b>跑 30～60 分钟后可补一次：能量胶、香蕉、葡萄干、小面包都行。</li>
+        <li><b>全马：</b>每 40～60 分钟补一次，比赛前练习几次肠胃能不能接受，别比赛当天第一次吃。</li>
+        <li>赛前一天把<b>米饭/面条等主食正常吃饱</b>，就是最实用的“补糖”，不用买特殊补剂。</li>
+      </ul>
+    </div>
+    <div class="g-card">
+      <h3><span class="n">3</span>电解质与喝水</h3>
+      <ul>
+        <li>天热、出汗多、或运动超过 60 分钟，才需要补一点<b>电解质</b>，普通训练正常吃饭的盐基本够。</li>
+        <li>学生平替：<b>淡盐水</b>（一小撮盐 + 一点糖）、或运动饮料，不一定要买专业冲剂。</li>
+        <li>赛前 1～2 小时分次喝约 300～500ml；赛前 15 分钟小口润口，别猛灌（开跑肚子响）。</li>
+        <li>赛后补水到尿液变成淡黄色即可，喝到不渴，别一次灌太多。</li>
+      </ul>
+      <div class="box no"><b>别踩坑</b>赛前一周别尝试任何新的补剂、新功能饮料或陌生食物，肠胃不适应，考场上最受罪。</div>
+    </div>
+  </section>
+
+  <!-- ============ 比赛技巧 ============ -->
+  <section class="panel" data-panel="race">
+    <div class="section-title">跑法与节奏</div>
+    <div class="g-card">
+      <h3><span class="n">1</span>起跑 &amp; 跟跑</h3>
+      <ul>
+        <li>起步后 100～200 米先<b>找到自己的节奏</b>，不要被别人带得太快——前 200 米冲最猛，后面最容易走回来。</li>
+        <li>想跟人就跟在<b>比你略快一点</b>的人后面 1～2 米，借他的节奏；明显比你快很多的人别硬跟，否则提早崩。</li>
+        <li>跑的时候目光看前方，不要低头盯脚，身体微前倾、重心向前。</li>
+      </ul>
+    </div>
+    <div class="g-card">
+      <h3><span class="n">2</span>呼吸 &amp; 极点</h3>
+      <ul>
+        <li>呼吸固定节奏，常用 <b>两步一吸、两步一呼</b>（2-2）或 3-3，鼻吸嘴呼或鼻嘴同用，别乱喘。</li>
+        <li>中途出现腿沉、胸闷、喘不上气的<b>“极点”</b>是正常的：稍微放一点、加深呼吸、咬牙顶 30～60 秒，会迎来“第二次呼吸”。</li>
+      </ul>
+    </div>
+    <div class="g-card">
+      <h3><span class="n">3</span>最后冲刺</h3>
+      <ul>
+        <li>最后约 <b>150～200 米</b>加大摆臂、提高步频，身体轻压，冲过终点再减速，别提前松懈。</li>
+        <li>冲线是<b>身体躯干</b>过线才算，保持冲线动作到终点线之后。</li>
+      </ul>
+    </div>
+
+    <div class="section-title">中考体测考场避坑</div>
+    <div class="g-card">
+      <ul>
+        <li><b>抢跑：</b>听枪响再动，别压枪太死，以现场老师讲的规则为准。</li>
+        <li><b>串道 / 踩线：</b>弯道别踩最内侧跑道线、别提前并道，容易被判犯规，起跑后按规定路线跑。</li>
+        <li><b>准备：</b>鞋带系紧（多余的塞好）、号码布固定、轻装；天凉先保持热身温度，别太早脱外套。</li>
+        <li><b>等待：</b>分组考试时别在等的时候把体力耗光，原地轻活动保持身体热。</li>
+        <li><b>提前上厕所、赛前别喝太多水</b>，开跑前再小口润一下嘴。</li>
+      </ul>
+      <div class="box no"><b>安全第一</b>跑步中若出现头晕、眼前发黑、胸闷、剧烈刺痛，立刻放慢或停下、举手示意，不要硬撑，健康远比一次成绩重要。</div>
+    </div>
+  </section>
+
+  <!-- 引导 -->
+  <section class="card" style="text-align:center">
+    <p style="font-size:14px;color:var(--muted);margin-bottom:12px">热身和赛后拉伸，我们做了一套可以跟着倒计时做的流程：</p>
+    <a href="warmup.html" style="display:inline-block;background:var(--blue);color:#fff;font-weight:700;font-size:14.5px;padding:10px 24px;border-radius:10px;text-decoration:none">去看热身拉伸流程</a>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p style="margin-bottom:4px">定制网页小工具 · QQ 邮箱：<a href="mailto:765041959@qq.com" style="color:var(--blue)">765041959@qq.com</a></p>
+  <p>© <span id="year"></span> 跑道笔记 · 实战指南（个人经验，仅供参考，不构成购买建议）</p>
+</footer>
+
+<script>
+/* tab 切换：纯显示/隐藏，不依赖任何框架 */
+var tabs = document.querySelectorAll(".tabs button");
+var panels = document.querySelectorAll(".panel");
+tabs.forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var t = btn.getAttribute("data-t");
+    tabs.forEach(function(b){ b.classList.toggle("on", b===btn); });
+    panels.forEach(function(p){ p.classList.toggle("show", p.getAttribute("data-panel")===t); });
+    window.scrollTo({ top:0, behavior:"smooth" });
+  });
+});
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
