@@ -59,16 +59,22 @@ section{ scroll-margin-top:72px; }
 /* ============================================================
    1. 顶部导航栏（吸顶）
    ============================================================ */
+/* 悬浮胶囊导航：固定在顶部、四周留白，像手机系统状态栏那样浮在内容上 */
 .navbar{
-  position:sticky; top:0; z-index:100;
-  background:rgba(255,255,255,.92);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-  border-bottom:1px solid var(--line);
+  position:fixed; top:14px; left:0; right:0; z-index:100;
+  background:transparent; border:none; box-shadow:none;
+  padding:0 16px;
 }
 .nav-inner{
-  max-width:var(--maxw); margin:0 auto; padding:0 20px;
-  height:64px; display:flex; align-items:center; justify-content:space-between;
+  position:relative;
+  max-width:var(--maxw); margin:0 auto; height:58px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 18px; border-radius:999px;            /* 椭圆胶囊 */
+  background:rgba(255,255,255,.55);
+  -webkit-backdrop-filter:blur(22px) saturate(1.7);
+  backdrop-filter:blur(22px) saturate(1.7);
+  border:1px solid rgba(255,255,255,.65);
+  box-shadow:0 12px 32px rgba(16,80,160,.16), inset 0 1px 0 rgba(255,255,255,.9);
 }
 /* 站点 Logo：小跑道方块 + 站名 */
 .logo{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:19px; }
@@ -85,8 +91,9 @@ section{ scroll-margin-top:72px; }
 
 /* 汉堡按钮：移动端显示，默认隐藏 */
 .nav-toggle{
-  display:none; width:44px; height:44px; border:1px solid var(--line);
-  background:var(--white); border-radius:10px; cursor:pointer;
+  display:none; width:40px; height:40px;
+  border:1px solid rgba(255,255,255,.55);
+  background:rgba(255,255,255,.28); border-radius:12px; cursor:pointer;
   align-items:center; justify-content:center;
 }
 .nav-toggle span,
@@ -146,18 +153,34 @@ section{ scroll-margin-top:72px; }
 /* ============================================================
    3. 工具入口卡片
    ============================================================ */
-.tools{ background:var(--bg); padding:84px 0 90px; margin-top:-64px; position:relative; z-index:3; }
+.tools{ background:var(--bg); padding:84px 0 90px; margin-top:-64px; position:relative; z-index:3; overflow:hidden; }
+/* 背后柔和蓝色光斑：让半透明玻璃卡片“透”出色彩 */
+.tools::before{
+  content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(620px 320px at 12% -10%, rgba(61,139,253,.20), transparent 62%),
+    radial-gradient(520px 300px at 95% 15%, rgba(56,189,248,.16), transparent 60%);
+}
 .tool-grid{
+  position:relative; z-index:1;
   display:grid; grid-template-columns:repeat(4,1fr); gap:18px;
 }
-/* 卡片整体是一个真实链接，点击跳转到对应工具页面 */
+/* 卡片整体是一个真实链接，点击跳转到对应工具页面；液态玻璃质感 */
 .tool-card{
-  background:var(--white); border:1px solid var(--line); border-radius:var(--radius);
+  background:rgba(255,255,255,.58);
+  -webkit-backdrop-filter:blur(14px) saturate(1.35);
+  backdrop-filter:blur(14px) saturate(1.35);
+  border:1px solid rgba(255,255,255,.75);
+  border-top:3px solid var(--blue);
+  border-radius:var(--radius);
   padding:30px 26px 26px; display:flex; flex-direction:column;
-  transition:transform .2s, box-shadow .2s, border-color .2s;
-  border-top:4px solid var(--blue);
+  box-shadow:0 8px 28px rgba(16,80,160,.08), inset 0 1px 0 rgba(255,255,255,.8);
+  transition:transform .2s, box-shadow .2s, border-color .2s, background .2s;
 }
-.tool-card:hover{ transform:translateY(-6px); box-shadow:var(--shadow-hover); border-color:#b9d3f7; }
+.tool-card:hover{
+  transform:translateY(-6px); background:rgba(255,255,255,.74);
+  box-shadow:0 16px 40px rgba(16,80,160,.14), inset 0 1px 0 rgba(255,255,255,.9);
+}
 .tool-icon{
   width:52px; height:52px; border-radius:12px; background:var(--blue-soft);
   display:flex; align-items:center; justify-content:center; margin-bottom:18px;
@@ -172,6 +195,29 @@ section{ scroll-margin-top:72px; }
   transition:background .18s,color .18s;
 }
 .tool-card:hover .tool-go{ background:var(--blue); color:#fff; }
+
+/* 知识库横幅入口（工具区下方全宽条） */
+.kb-entry{
+  margin-top:26px; position:relative; z-index:1;
+  display:flex; align-items:center; gap:20px;
+  background:linear-gradient(120deg,var(--blue-soft),#f4f9ff);
+  border:1px solid #b9d3f7; border-radius:var(--radius);
+  padding:22px 26px; transition:transform .2s, box-shadow .2s;
+}
+.kb-entry:hover{ transform:translateY(-4px); box-shadow:var(--shadow-hover); }
+.kb-entry .kb-icon{
+  width:54px; height:54px; flex:none; border-radius:12px; background:var(--blue);
+  display:flex; align-items:center; justify-content:center;
+}
+.kb-entry .kb-icon svg{ width:28px; height:28px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.kb-entry h3{ font-size:18px; font-weight:800; color:var(--blue-deep); }
+.kb-entry p{ font-size:14px; color:var(--muted); margin-top:2px; }
+.kb-entry .kb-go{
+  margin-left:auto; flex:none; font-size:14px; font-weight:700; color:var(--blue);
+  border:1.5px solid var(--blue); border-radius:8px; padding:8px 18px; white-space:nowrap;
+  transition:background .18s,color .18s;
+}
+.kb-entry:hover .kb-go{ background:var(--blue); color:#fff; }
 
 /* ============================================================
    4. 简介板块
@@ -209,6 +255,38 @@ section{ scroll-margin-top:72px; }
 .about-visual li::before{ content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:#9ec5ff; margin-right:10px; }
 
 /* ============================================================
+   4.5 请作者喝杯补水啦（自愿打赏）
+   ============================================================ */
+.donate{
+  padding:80px 0 90px; position:relative; overflow:hidden;
+  background:linear-gradient(180deg,#ffffff,var(--blue-soft));
+}
+.donate::before{
+  content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:radial-gradient(560px 300px at 50% 0%, rgba(61,139,253,.16), transparent 65%);
+}
+.donate .container{ position:relative; z-index:1; }
+.donate-card{
+  max-width:640px; margin:0 auto; text-align:center;
+  background:rgba(255,255,255,.6);
+  -webkit-backdrop-filter:blur(16px) saturate(1.4);
+  backdrop-filter:blur(16px) saturate(1.4);
+  border:1px solid rgba(255,255,255,.8);
+  border-radius:18px; padding:42px 30px;
+  box-shadow:0 14px 44px rgba(16,80,160,.12), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.donate-card h3{ font-size:20px; font-weight:800; color:var(--blue-deep); margin-bottom:10px; }
+.donate-card p{ font-size:14.5px; color:var(--muted); max-width:520px; margin:0 auto 6px; }
+.qr-box{
+  width:184px; height:184px; margin:18px auto 10px; border:2px dashed var(--blue); border-radius:12px;
+  background:#f8fbff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--muted);
+}
+.qr-box svg{ width:56px; height:56px; stroke:var(--blue); fill:none; stroke-width:1.6; }
+.qr-box .t1{ font-size:13.5px; font-weight:700; color:var(--blue-deep); }
+.qr-box .t2{ font-size:11.5px; padding:0 14px; }
+.donate-card .vol{ font-size:12.5px; color:var(--muted); margin-top:8px; }
+
+/* ============================================================
    5. 底部
    ============================================================ */
 .footer{ background:var(--blue-deep); color:rgba(255,255,255,.85); padding:46px 0 30px; }
@@ -220,6 +298,8 @@ section{ scroll-margin-top:72px; }
 .footer p, .footer a{ font-size:14px; color:rgba(255,255,255,.78); }
 .footer a:hover{ color:#fff; }
 .footer-note{ font-size:12.5px; color:rgba(255,255,255,.6); margin-top:8px; }
+.footer-contact{ margin-top:14px; font-size:14.5px; color:#fff; }
+.footer-contact a{ color:#9ec5ff; font-weight:700; text-decoration:underline; word-break:break-all; }
 .footer-bottom{ text-align:center; padding-top:22px; font-size:13px; color:rgba(255,255,255,.6); }
 
 /* ============================================================   通用：轻提示 toast（给暂未上线的导航项做真实反馈，避免死按钮）
@@ -247,19 +327,23 @@ section{ scroll-margin-top:72px; }
   .about-grid{ grid-template-columns:1fr; gap:34px; }
   .about-visual{ max-width:460px; margin:0 auto; width:100%; }
 
-  /* 汉堡按钮出现，导航链接折叠为下拉面板 */
+  /* 汉堡按钮出现，导航链接折叠为胶囊下方的玻璃弹出面板 */
   .nav-toggle{ display:flex; }
   .nav-links{
-    position:absolute; top:64px; left:0; right:0;
-    background:#fff; border-bottom:1px solid var(--line);
-    flex-direction:column; align-items:stretch; gap:0; padding:8px 16px 14px;
-    display:none; box-shadow:0 12px 24px rgba(16,60,130,.1);
+    position:absolute; top:calc(100% + 10px); left:0; right:0;
+    background:rgba(255,255,255,.88);
+    -webkit-backdrop-filter:blur(20px) saturate(1.5);
+    backdrop-filter:blur(20px) saturate(1.5);
+    border:1px solid rgba(255,255,255,.7); border-radius:20px;
+    flex-direction:column; align-items:stretch; gap:2px; padding:8px;
+    display:none; box-shadow:0 16px 40px rgba(16,60,130,.18);
   }
   .nav-links.show{ display:flex; }
-  .nav-links a{ padding:13px 10px; border-radius:0; border-bottom:1px solid var(--bg); font-size:16px; }
-  .nav-links a:last-child{ border-bottom:none; }
+  .nav-links a{ padding:13px 14px; border-radius:12px; font-size:16px; }
+  .nav-links a:hover{ background:rgba(22,104,220,.08); }
 
-  .hero{ padding:64px 0 140px; }
+  /* 顶部悬浮胶囊约占 72px，hero 上边距加大避免标题被挡 */
+  .hero{ padding:96px 0 140px; }
   .tools{ padding:64px 0 70px; }
   .about{ padding:64px 0 70px; }
 }
@@ -303,9 +387,11 @@ section{ scroll-margin-top:72px; }
     <nav class="nav-links" id="navLinks" aria-label="主导航">
       <a href="#top">首页</a>
       <a href="#tools">跑步工具</a>
-      <a href="#" data-toast="训练笔记正在整理中，敬请期待">训练笔记</a>
+      <a href="knowledge.html">训练知识</a>
+      <a href="training-notes.html">训练笔记</a>
       <a href="#about">关于我们</a>
       <a href="#contact">定制服务</a>
+      <a href="account.html">我的</a>
     </nav>
   </div>
 </header>
@@ -390,6 +476,71 @@ section{ scroll-margin-top:72px; }
         <span class="tool-go">去打卡</span>
       </a>
     </div>
+
+    <!-- 训练计划生成器入口（全宽横幅，主推功能，实底高亮） -->
+    <a class="kb-entry kb-entry--plan reveal" href="plan-generator.html" style="margin-top:26px;background:linear-gradient(120deg,var(--blue-deep),var(--blue));border-color:var(--blue-deep);">
+      <span class="kb-icon" style="background:rgba(255,255,255,.18);">
+        <!-- 计划表图标 -->
+        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2.5v4M16 2.5v4M4 9h16"/><path d="M8.5 13.5l2 2 4-4"/></svg>
+      </span>
+      <span>
+        <h3 style="color:#fff;">训练计划生成器</h3>
+        <p style="color:rgba(255,255,255,.85);">输入成绩、每周练几天、还剩几周，自动生成分阶段计划与配速参考；800/1000 米到 5 公里、10 公里、半马、全马都能算，需要一对一专项定制也可联系我们。</p>
+      </span>
+      <span class="kb-go" style="border-color:#fff;color:#fff;background:rgba(255,255,255,.12);">去生成计划</span>
+    </a>
+
+    <!-- 跑步知识库入口（全宽横幅） -->
+    <a class="kb-entry reveal" href="knowledge.html" style="margin-top:14px;">
+      <span class="kb-icon">
+        <!-- 书本图标 -->
+        <svg viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H12v15H5.5A1.5 1.5 0 0 0 4 20.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H12v15h6.5a1.5 1.5 0 0 1 1.5 1.5z"/></svg>
+      </span>
+      <span>
+        <h3>跑步知识库</h3>
+        <p>超量恢复、间歇跑、乳酸阈值、心率区间、损伤预防、中考战术……20 篇训练理论，输入关键词即可检索。</p>
+      </span>
+      <span class="kb-go">去查知识</span>
+    </a>
+
+    <!-- 训练笔记入口（全宽横幅，复用知识库横幅样式） -->
+    <a class="kb-entry reveal" href="training-notes.html" style="margin-top:14px;background:linear-gradient(120deg,#f0f7ff,#f7fbff);">
+      <span class="kb-icon" style="background:var(--blue-deep);">
+        <!-- 笔记本/铅笔图标 -->
+        <svg viewBox="0 0 24 24"><path d="M5 4h10a1 1 0 0 1 1 1v14l-3-2-3 2-3-2V5a1 1 0 0 1 1-1z"/><path d="M18.5 6.5 16 9"/><path d="M19.5 4.5a2.1 2.1 0 0 1 0 3L15 12l-2 .5.5-2 4.5-4.5a2.1 2.1 0 0 1 3 0z"/></svg>
+      </span>
+      <span>
+        <h3>训练笔记</h3>
+        <p>8 周备考周期、间歇跑实操、考前减量、伤病处理、复盘模板……14 篇实战笔记，照着练、拿来改。</p>
+      </span>
+      <span class="kb-go">去看笔记</span>
+    </a>
+
+    <!-- 热身拉伸流程入口（全宽横幅，白底，与知识库同风格） -->
+    <a class="kb-entry reveal" href="warmup.html" style="margin-top:14px;">
+      <span class="kb-icon">
+        <!-- 跑步小人图标，表示跟着做的热身流程 -->
+        <svg viewBox="0 0 24 24"><circle cx="14.5" cy="5" r="2"/><path d="M14.5 8 L11.5 13 L13.5 16.5 L11.5 21"/><path d="M11.5 12.5 L7.5 12 L5 14.5"/><path d="M12 11.5 L16.5 10.5 L18.5 12.5"/><path d="M13.5 16.5 L10 18 L7.5 20.5"/><path d="M13.5 16.5 L16.5 19 L18.5 21"/></svg>
+      </span>
+      <span>
+        <h3>热身拉伸 · 操场跟着做</h3>
+        <p>跑前动态热身、赛后静态拉伸全套动作，带倒计时、自动连播和提示音，保持屏幕常亮，到操场跟着一步步做。</p>
+      </span>
+      <span class="kb-go">开始热身</span>
+    </a>
+
+    <!-- 实战指南入口（全宽横幅，浅蓝底，与训练笔记同风格） -->
+    <a class="kb-entry reveal" href="guide.html" style="margin-top:14px;background:linear-gradient(120deg,#f0f7ff,#f7fbff);">
+      <span class="kb-icon" style="background:var(--blue-deep);">
+        <!-- 书签图标，表示实战指南 -->
+        <svg viewBox="0 0 24 24"><path d="M6 3.5h12a1 1 0 0 1 1 1V20.5l-7-4.5-7 4.5V4.5a1 1 0 0 1 1-1z"/><path d="M9 8h6M9 11h6"/></svg>
+      </span>
+      <span>
+        <h3>实战指南：装备 · 饮食 · 考场</h3>
+        <p>平价跑鞋、运动袜、心率手环避雷（不带货），赛前怎么吃、补糖与电解质的食堂版做法，起跑、跟跑、冲刺和体测考场避坑。</p>
+      </span>
+      <span class="kb-go">去看指南</span>
+    </a>
   </div>
 </section>
 
@@ -399,8 +550,8 @@ section{ scroll-margin-top:72px; }
 <section class="about" id="about">
   <div class="container about-grid">
     <div class="about-text reveal">
-      <h2>两个学生，一个热爱跑步，一个热爱编程</h2>
-      <p><strong>跑道笔记</strong>是我们两个人一起搭建的业余项目。一个人在跑道上练 1000 米、跑间歇，把踩过的坑和训练心得记下来；另一个人把训练中反复要算的东西，写成打开网页就能用的小工具。</p>
+      <h2>几个学生，一群热爱跑步，一群热爱编程</h2>
+      <p><strong>跑道笔记</strong>是我们一起搭建的业余项目。几个人在跑道上练 1000 米、跑间歇有氧，把踩过的坑和训练心得记下来；把训练中反复要算的东西，写成打开网页就能用的小工具。</p>
       <p>我们都还是学生，网站没有广告、不收费，只想把自己觉得好用的东西分享给同样在备考中考体育、喜欢中长跑的同学。</p>
 
       <div class="member-list">
@@ -441,6 +592,23 @@ section{ scroll-margin-top:72px; }
 </section>
 
 <!-- ============================================================
+     4.5 请作者喝杯水（自愿打赏，位于底部上方）
+     ============================================================ -->
+<section class="donate" id="donate">
+  <div class="container">
+    <div class="donate-card reveal">
+      <h3>请作者喝杯水</h3>
+      <p>跑道笔记的工具、知识库和训练计划都免费、无广告，由几个学生在课余时间维护。</p>
+      <p>如果它真的帮到了你的训练，你可以自愿打赏一瓶水，支持我们继续更新；不打赏也完全不影响使用任何功能。</p>
+
+      <!-- 收款码：已接入同目录 qrcode.png（微信收款码）；想更换，直接替换该图片文件即可。 -->
+      <img class="qr-img" src="qrcode.png" alt="微信收款码" style="width:184px;height:184px;object-fit:contain;border-radius:12px;border:1px solid #e3edfb;background:#fff;margin:18px auto 10px;display:block">
+      <p class="vol">自愿支持 · 金额随意 · 感谢每一位为跑道笔记补水的跑者</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
      5. 底部（含定制服务入口锚点 #contact）
      ============================================================ -->
 <footer class="footer" id="contact">
@@ -448,14 +616,22 @@ section{ scroll-margin-top:72px; }
     <div class="footer-top">
       <div>
         <h4>跑道笔记 · Track Notes</h4>
-        <p>两个热爱跑步和编程的学生，一起做的中长跑训练小站。</p>
+        <p>一群热爱跑步和编程的学生，一起做的中长跑训练小站。</p>
         <p class="footer-note">可定制网页小工具，联系咨询</p>
+        <p class="footer-contact">定制网页小工具 · QQ 邮箱：<a href="mailto:765041959@qq.com">765041959@qq.com</a></p>
       </div>
       <div>
         <h4>快速入口</h4>
         <p><a href="pace-calculator.html">配速计算器</a></p>
         <p><a href="interval-timer.html">间歇跑计时器</a></p>
         <p><a href="heart-rate-zones.html">心率区间计算器</a></p>
+        <p><a href="knowledge.html">跑步知识库</a></p>
+        <p><a href="training-notes.html">训练笔记</a></p>
+        <p><a href="warmup.html">热身拉伸</a></p>
+        <p><a href="guide.html">实战指南</a></p>
+        <p><a href="plan-generator.html">训练计划</a></p>
+        <p><a href="checkin.html">跑步打卡</a></p>
+        <p><a href="account.html">我的数据 / 备份</a></p>
       </div>
     </div>
     <!-- 年份由 JS 自动更新 -->
