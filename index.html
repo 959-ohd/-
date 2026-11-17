@@ -196,6 +196,9 @@ section{ scroll-margin-top:72px; }
 }
 .tool-card:hover .tool-go{ background:var(--blue); color:#fff; }
 
+/* 三列网格（训练管理区：成绩 / 恢复 / 力量），每个断点都能整除，不留孤行 */
+.tool-grid--3{ grid-template-columns:repeat(3,1fr); max-width:900px; margin:0 auto; }
+
 /* 知识库横幅入口（工具区下方全宽条） */
 .kb-entry{
   margin-top:26px; position:relative; z-index:1;
@@ -351,6 +354,8 @@ section{ scroll-margin-top:72px; }
 /* 用户在系统层面开启了“减弱动态效果”时，关闭所有过渡动画 */
 @media (max-width:1000px){
   .tool-grid{ grid-template-columns:repeat(2,1fr); max-width:640px; margin:0 auto; }
+  /* 三卡网格在窄屏必须走单列：2 列会留下「2+1」孤行 */
+  .tool-grid--3{ grid-template-columns:1fr; max-width:460px; }
 }
 @media (prefers-reduced-motion:reduce){
   html{ scroll-behavior:auto; }
@@ -389,6 +394,7 @@ section{ scroll-margin-top:72px; }
       <a href="#tools">跑步工具</a>
       <a href="knowledge.html">训练知识</a>
       <a href="training-notes.html">训练笔记</a>
+      <a href="records.html">成绩记录</a>
       <a href="#about">关于我们</a>
       <a href="#contact">定制服务</a>
       <a href="account.html">我的</a>
@@ -541,6 +547,47 @@ section{ scroll-margin-top:72px; }
       </span>
       <span class="kb-go">去看指南</span>
     </a>
+
+    <!-- ===== 训练管理：成绩 / 恢复 / 力量（三卡一行） ===== -->
+    <div class="sec-head reveal" style="margin:52px 0 22px;">
+      <h2 style="font-size:20px;">训练管理</h2>
+      <p>记成绩、看恢复、补力量——练得对，比练得多更重要</p>
+    </div>
+
+    <div class="tool-grid tool-grid--3">
+      <!-- 成绩记录本 -->
+      <a class="tool-card reveal" href="records.html">
+        <div class="tool-icon">
+          <!-- 上升折线图标：成绩趋势 -->
+          <svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M5 16l4.5-5.5 3.5 3L20 6"/><path d="M16.5 6H20v3.5"/></svg>
+        </div>
+        <h3>成绩记录本</h3>
+        <p>记录 800 米到全马的每次成绩，自动算 PB、配速和进步曲线。填 340 就是 3:40。</p>
+        <span class="tool-go">记录成绩</span>
+      </a>
+
+      <!-- 恢复自查 -->
+      <a class="tool-card reveal" href="recovery.html">
+        <div class="tool-icon">
+          <!-- 心形脉搏图标：恢复状态 -->
+          <svg viewBox="0 0 24 24"><path d="M3 12h4l2-4 3 8 2.5-5H21"/><path d="M12 20.5c-4-3.2-6.5-5.6-6.5-8.3"/></svg>
+        </div>
+        <h3>恢复自查</h3>
+        <p>晨脉、睡眠、酸痛、训练欲望四项打分，告诉你今天该正常练、减量还是休息。</p>
+        <span class="tool-go">查一下状态</span>
+      </a>
+
+      <!-- 力量与核心 -->
+      <a class="tool-card reveal" href="strength.html">
+        <div class="tool-icon">
+          <!-- 哑铃图标：力量训练 -->
+          <svg viewBox="0 0 24 24"><path d="M4 9v6M7 7.5v9M17 7.5v9M20 9v6"/><path d="M7 12h10"/></svg>
+        </div>
+        <h3>力量与核心</h3>
+        <p>赛前激活、日常补强、伤后恢复三组自重动作，操场或宿舍就能做，不用器械。</p>
+        <span class="tool-go">看动作库</span>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -630,6 +677,9 @@ section{ scroll-margin-top:72px; }
         <p><a href="warmup.html">热身拉伸</a></p>
         <p><a href="guide.html">实战指南</a></p>
         <p><a href="plan-generator.html">训练计划</a></p>
+        <p><a href="records.html">成绩记录本</a></p>
+        <p><a href="recovery.html">恢复自查</a></p>
+        <p><a href="strength.html">力量与核心</a></p>
         <p><a href="checkin.html">跑步打卡</a></p>
         <p><a href="account.html">我的数据 / 备份</a></p>
       </div>
