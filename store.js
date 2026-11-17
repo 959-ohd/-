@@ -10,6 +10,8 @@
 
   var CHECKIN_KEY = "track_notes_checkins_v1";   // 打卡记录（与 checkin.html 一致）
   var PLAN_KEY    = "track_notes_plans_v1";      // 收藏的训练计划
+  var RECORD_KEY  = "track_notes_records_v1";    // 成绩记录（与 records.html 一致）
+  var RECOVERY_KEY= "track_notes_recovery_v1";   // 恢复自查历史（与 recovery.html 一致）
   var BACKUP_TAG  = "PD1:";                      // 备份码前缀，便于识别
 
   /* 通用：读取数组 / 写入数组 */
@@ -60,10 +62,12 @@
   function buildBackup(){
     return {
       app: "track-notes",
-      version: 1,
+      version: 2,
       exported_at: new Date().toISOString(),
       checkins: getCheckins(),
-      plans: readArray(PLAN_KEY)
+      plans: readArray(PLAN_KEY),
+      records: readArray(RECORD_KEY),
+      recovery: readArray(RECOVERY_KEY)
     };
   }
 
@@ -126,7 +130,34 @@
     });
     writeArray(PLAN_KEY, oldPlans);
 
-    return { checkinsAdded: cAdded, plansAdded: pAdded };
+    /* 成绩记录：按 项目+日期+成绩 去重（同一场测试重复导入不会翻倍） */
+    var oldRecords = readArray(RECORD_KEY);
+    var rSeen = {};
+    oldRecords.forEach(function(r){ rSeen[r.event + "|" + r.date + "|" + r.seconds] = true; });
+    var rAdded = 0;
+    (obj.records || []).forEach(function(r){
+      if(r && r.event && r.date && r.seconds != null){
+        var fp = r.event + "|" + r.date + "|" + r.seconds;
+        if(!rSeen[fp]){
+          if(!r.id) r.id = "r" + Date.now() + Math.floor(Math.random()*1000);
+          oldRecords.push(r); rSeen[fp] = true; rAdded++;
+        }
+      }
+    });
+    writeArray(RECORD_KEY, oldRecords);
+
+    /* 恢复自查：按 id 去重，保留最近 30 条 */
+    var oldRec = readArray(RECOVERY_KEY);
+    var vSeen = {};
+    oldRec.forEach(function(v){ vSeen[v.id] = true; });
+    var vAdded = 0;
+    (obj.recovery || []).forEach(function(v){
+      if(v && v.id && !vSeen[v.id]){ oldRec.push(v); vSeen[v.id] = true; vAdded++; }
+    });
+    oldRec.sort(function(a,b){ return (b.date || "") < (a.date || "") ? -1 : 1; });
+    writeArray(RECOVERY_KEY, oldRec.slice(0, 30));
+
+    return { checkinsAdded: cAdded, plansAdded: pAdded, recordsAdded: rAdded, recoveryAdded: vAdded };
   }
 
   /* 触发浏览器下载 .json 备份文件 */
@@ -147,6 +178,8 @@
   window.PDStore = {
     CHECKIN_KEY: CHECKIN_KEY,
     PLAN_KEY: PLAN_KEY,
+    RECORD_KEY: RECORD_KEY,
+    RECOVERY_KEY: RECOVERY_KEY,
     listPlans: listPlans,
     hasPlan: hasPlan,
     addPlan: addPlan,
