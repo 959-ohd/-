@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>成绩记录本 · 跑道笔记</title>
+<meta name="description" content="记录 800 米、1000 米到 5 公里、半马、全马的每一次成绩，自动算个人最好成绩、配速和进步趋势，数据只存在你自己的手机上。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231668dc'/%3E%3Cg stroke='white' stroke-width='4' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 50 L30 18'/%3E%3Cpath d='M27 50 L33 18'/%3E%3Cpath d='M40 50 L36 18'/%3E%3Cpath d='M53 50 L39 18'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   成绩记录本 · 样式（蓝白运动风，与全站统一的颜色变量）
+   ============================================================ */
+:root{
+  --blue:#1668dc; --blue-deep:#0a3d8f; --blue-bright:#3d8bfd;
+  --blue-soft:#eaf2ff; --ink:#16233b; --muted:#5a6b85;
+  --line:#dbe7f7; --bg:#f5f9ff; --white:#fff;
+  --green:#16a34a; --red:#dc2626; --orange:#c2410c;
+  --radius:14px; --shadow:0 8px 24px rgba(16,60,130,.08);
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.7; -webkit-font-smoothing:antialiased;
+}
+a{ text-decoration:none; color:inherit; }
+.container{ max-width:820px; margin:0 auto; padding:0 20px; }
+
+/* ---------- 顶部蓝头 ---------- */
+.site-header{ background:linear-gradient(160deg,var(--blue-deep),var(--blue)); color:#fff; padding:26px 0 58px; }
+.header-row{ display:flex; align-items:center; gap:12px; }
+.header-row svg{ width:36px; height:36px; flex:none; }
+.header-row h1{ font-size:21px; font-weight:800; }
+.header-row small{ display:block; font-size:11px; opacity:.8; letter-spacing:2px; }
+.header-link{ margin-left:auto; font-size:13.5px; color:#cfe2ff; text-decoration:underline; white-space:nowrap; }
+
+/* ---------- 卡片 ---------- */
+.card{ background:var(--white); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:24px; margin-top:-34px; margin-bottom:22px; position:relative; }
+.card h2{ font-size:17px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.card h2::before{ content:""; width:5px; height:18px; border-radius:3px; background:var(--blue); }
+
+/* 表单 */
+.field{ margin-bottom:14px; }
+.field label{ display:block; font-size:14px; font-weight:600; margin-bottom:6px; }
+.field input, .field select, .field textarea{
+  width:100%; padding:10px 12px; font-size:15px; border:1.5px solid var(--line);
+  border-radius:10px; background:#fbfdff; outline:none; font-family:inherit; color:var(--ink);
+}
+.field input, .field select{ height:44px; padding:0 12px; }
+.field textarea{ min-height:64px; resize:vertical; }
+.field input:focus, .field select:focus, .field textarea:focus{
+  border-color:var(--blue); box-shadow:0 0 0 3px rgba(22,104,220,.12); background:#fff;
+}
+.row2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.hint{ font-size:12.5px; color:var(--muted); margin:5px 0 14px; }
+
+.btn{
+  width:100%; height:48px; border:none; border-radius:10px; background:var(--blue);
+  color:#fff; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:4px;
+}
+.btn:hover{ background:var(--blue-bright); }
+.btn-ghost{ background:#fff; color:var(--blue); border:1.5px solid var(--blue); }
+.btn-ghost:hover{ background:var(--blue-soft); }
+.err-msg{ color:var(--red); font-size:14px; margin-top:10px; min-height:20px; }
+
+/* ---------- PB 概览 ---------- */
+.pb-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.pb-box{ background:var(--blue-soft); border-radius:10px; padding:12px 10px; text-align:center; }
+.pb-box .name{ font-size:12.5px; color:var(--muted); }
+.pb-box .val{ font-size:17px; font-weight:800; color:var(--blue-deep); font-variant-numeric:tabular-nums; }
+.pb-box .pace{ font-size:11.5px; color:var(--muted); }
+.pb-empty{ color:var(--muted); font-size:14px; text-align:center; padding:10px 0; }
+
+/* ---------- 趋势图 ---------- */
+.chart-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+.chart-head select{
+  height:38px; padding:0 10px; border:1.5px solid var(--line); border-radius:9px;
+  background:#fbfdff; font-size:14px; font-family:inherit; color:var(--ink); outline:none;
+}
+.chart-head select:focus{ border-color:var(--blue); }
+.chart-wrap{ width:100%; overflow-x:auto; }
+#chart{ width:100%; min-width:320px; height:auto; display:block; }
+.chart-empty{ color:var(--muted); font-size:14px; text-align:center; padding:28px 0; }
+.chart-stat{ font-size:13px; color:var(--muted); margin-top:8px; }
+.chart-stat b{ color:var(--blue-deep); }
+
+/* ---------- 记录列表 ---------- */
+.rec-list{ display:flex; flex-direction:column; gap:10px; }
+.rec-row{
+  display:flex; align-items:flex-start; gap:12px;
+  border:1px solid var(--line); border-radius:11px; padding:12px 14px; background:#fbfdff;
+}
+.rec-main{ flex:1; min-width:0; }
+.rec-top{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.rec-top .ev{ font-size:14.5px; font-weight:700; }
+.rec-top .rs{ font-size:17px; font-weight:800; color:var(--blue); font-variant-numeric:tabular-nums; }
+.tag{ font-size:11.5px; padding:2px 8px; border-radius:999px; background:var(--blue-soft); color:var(--blue-deep); }
+.tag.race{ background:#e8f7ec; color:#15803d; }
+.tag.train{ background:#fff4e8; color:#b45309; }
+.tag.pb{ background:#fff0f0; color:#b91c1c; font-weight:700; }
+.rec-sub{ font-size:12.5px; color:var(--muted); margin-top:3px; word-break:break-word; }
+.del-btn{
+  flex:none; width:34px; height:34px; border:1px solid var(--line); border-radius:9px;
+  background:#fff; color:var(--muted); cursor:pointer; font-size:18px; line-height:1;
+}
+.del-btn:hover{ border-color:#f5b5b5; color:var(--red); background:#fff6f6; }
+.list-empty{ color:var(--muted); font-size:14px; text-align:center; padding:18px 0; }
+
+/* 页脚 */
+.site-footer{ text-align:center; padding:10px 10px 34px; font-size:12.5px; color:var(--muted); }
+.site-footer a{ color:var(--blue); }
+
+@media (max-width:560px){
+  .pb-grid{ grid-template-columns:1fr 1fr; }
+  .row2{ grid-template-columns:1fr; }
+  .card{ padding:20px 16px; }
+}
+@media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-row">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <rect width="64" height="64" rx="14" fill="rgba(255,255,255,.16)"/>
+      <g stroke="#fff" stroke-width="4" stroke-linecap="round">
+        <path d="M14 50 L30 18"/><path d="M27 50 L33 18"/><path d="M40 50 L36 18"/><path d="M53 50 L39 18"/>
+      </g>
+    </svg>
+    <h1>成绩记录本<small>PERSONAL BEST</small></h1>
+    <a class="header-link" href="index.html">返回首页</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ===== 1. 录入成绩 ===== -->
+  <section class="card">
+    <h2>记一次成绩</h2>
+
+    <div class="row2">
+      <div class="field">
+        <label for="event">项目</label>
+        <select id="event">
+          <option value="800">800 米</option>
+          <option value="1000" selected>1000 米</option>
+          <option value="1500">1500 米</option>
+          <option value="2000">2000 米</option>
+          <option value="3000">3000 米</option>
+          <option value="5000">5000 米（5 公里）</option>
+          <option value="10000">10000 米（10 公里）</option>
+          <option value="21098">半程马拉松</option>
+          <option value="42195">全程马拉松</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="result">成绩</label>
+        <input type="text" id="result" placeholder="如 340 或 3:40" autocomplete="off">
+      </div>
+    </div>
+    <p class="hint" id="resultHint">填 340 就是 3 分 40 秒；也支持 3:40、3分40、205（2:05）</p>
+
+    <div class="row2">
+      <div class="field">
+        <label for="date">日期</label>
+        <input type="date" id="date">
+      </div>
+      <div class="field">
+        <label for="type">这次是</label>
+        <select id="type">
+          <option value="test" selected>测试 / 体测</option>
+          <option value="race">正式比赛</option>
+          <option value="train">日常训练</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="note">备注（可选）</label>
+      <input type="text" id="note" placeholder="如：操场第 3 道，逆风，跑完腿有点紧" maxlength="80">
+    </div>
+
+    <button class="btn" id="saveBtn">保存这条成绩</button>
+    <p class="err-msg" id="errMsg"></p>
+  </section>
+
+  <!-- ===== 2. 个人最好成绩 ===== -->
+  <section class="card">
+    <h2>个人最好成绩（PB）</h2>
+    <div class="pb-grid" id="pbGrid"></div>
+    <p class="pb-empty" id="pbEmpty">还没有记录。先在上面记一条，PB 会自动更新。</p>
+  </section>
+
+  <!-- ===== 3. 成绩趋势 ===== -->
+  <section class="card">
+    <h2>进步趋势</h2>
+    <div class="chart-head">
+      <select id="chartEvent">
+        <option value="800">800 米</option>
+        <option value="1000">1000 米</option>
+        <option value="1500">1500 米</option>
+        <option value="2000">2000 米</option>
+        <option value="3000">3000 米</option>
+        <option value="5000">5000 米</option>
+        <option value="10000">10000 米</option>
+        <option value="21098">半程马拉松</option>
+        <option value="42195">全程马拉松</option>
+      </select>
+      <span class="hint" style="margin-top:0">越靠上越快</span>
+    </div>
+    <div class="chart-wrap" id="chartWrap">
+      <!-- 折线图由 JS 用内联 SVG 绘制，不引外部图表库 -->
+      <svg id="chart" viewBox="0 0 640 280" preserveAspectRatio="xMidYMid meet" aria-label="成绩趋势图"></svg>
+    </div>
+    <p class="chart-empty" id="chartEmpty">这个项目还没有记录。</p>
+    <p class="chart-stat" id="chartStat"></p>
+  </section>
+
+  <!-- ===== 4. 全部记录 ===== -->
+  <section class="card">
+    <h2>全部记录</h2>
+    <div class="rec-list" id="recList"></div>
+    <p class="list-empty" id="listEmpty">暂无记录</p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p style="margin-bottom:4px">定制网页小工具 · QQ 邮箱：<a href="mailto:765041959@qq.com">765041959@qq.com</a></p>
+  <p>© <span id="year"></span> 跑道笔记 · 成绩记录本 · 数据只保存在你自己的设备上</p>
+</footer>
+
+<script>
+/* ============================================================
+   成绩记录本 · 逻辑（原生 JS）
+   数据放在 localStorage，键名与 store.js 备份模块保持一致：
+   track_notes_records_v1
+   一条记录：{ id, event, seconds, date, type, note, created_at }
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var KEY = "track_notes_records_v1";
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* 项目参数：dist 用于算配速；useHour=true 表示成绩按“时:分”输入（半马/全马） */
+  var EVENTS = {
+    "800":  { name:"800 米",   dist:0.8,     useHour:false, lo:100,  hi:400 },
+    "1000": { name:"1000 米",  dist:1.0,     useHour:false, lo:130,  hi:520 },
+    "1500": { name:"1500 米",  dist:1.5,     useHour:false, lo:220,  hi:760 },
+    "2000": { name:"2000 米",  dist:2.0,     useHour:false, lo:310,  hi:1020 },
+    "3000": { name:"3000 米",  dist:3.0,     useHour:false, lo:480,  hi:1560 },
+    "5000": { name:"5000 米",  dist:5.0,     useHour:false, lo:880,  hi:2600 },
+    "10000":{ name:"10000 米", dist:10.0,    useHour:false, lo:1780, hi:5400 },
+    "21098":{ name:"半程马拉松", dist:21.0975, useHour:true,  lo:3600, hi:12600 },
+    "42195":{ name:"全程马拉松", dist:42.195,  useHour:true,  lo:7200, hi:23400 }
+  };
+  var TYPE_TEXT = { test:"测试 / 体测", race:"正式比赛", train:"日常训练" };
+
+  /* ---------- 读写本地数据 ---------- */
+  function load(){
+    try{
+      var v = JSON.parse(localStorage.getItem(KEY));
+      return Array.isArray(v) ? v : [];
+    }catch(e){ return []; }
+  }
+  function save(list){
+    try{ localStorage.setItem(KEY, JSON.stringify(list)); }catch(e){}
+  }
+
+  /* ---------- 成绩解析 ----------
+     规则与「训练计划生成器」完全一致，避免两处填法不一样：
+     短距离：340→3:40、205→2:05、2500→25:00；也支持 3:40 / 3分40
+     长距离：320→3:20:00、430→4:30:00；5 位 32045→3:20:45            */
+  function parseTime(v, useHour){
+    v = String(v).trim();
+    if(!v) return null;
+    var hms = v.match(/^(\d+)\s*[:：]\s*(\d{1,2})\s*[:：]\s*(\d{1,2})$/);
+    if(hms) return parseInt(hms[1],10)*3600 + parseInt(hms[2],10)*60 + parseInt(hms[3],10);
+    var two = v.match(/^(\d+)\s*[:：]\s*(\d{1,2})$/);
+    if(two) return useHour
+      ? parseInt(two[1],10)*3600 + parseInt(two[2],10)*60
+      : parseInt(two[1],10)*60 + parseInt(two[2],10);
+    var cn = v.match(/^(\d+)\s*分\s*(\d{1,2})\s*秒?$/);
+    if(cn) return parseInt(cn[1],10)*60 + parseInt(cn[2],10);
+    if(useHour){
+      var hcn = v.match(/^(\d+)\s*时\s*(\d{1,2})?\s*分?$/);
+      if(hcn) return parseInt(hcn[1],10)*3600 + (hcn[2] ? parseInt(hcn[2],10)*60 : 0);
+    }
+    if(/^\d+$/.test(v)){
+      if(useHour){
+        if(v.length >= 5){                       // 5 位及以上右对齐成 时:分:秒
+          var ss = parseInt(v.slice(-2),10);
+          var mm5 = parseInt(v.slice(-4,-2),10);
+          var hh5 = parseInt(v.slice(0,-4),10) || 0;
+          if(mm5 > 59 || ss > 59) return null;
+          return hh5*3600 + mm5*60 + ss;
+        }
+        var mm = parseInt(v.slice(-2),10) || 0;   // 3~4 位按时:分
+        var hh = v.length > 2 ? (parseInt(v.slice(0,-2),10) || 0) : 0;
+        if(mm > 59) return null;
+        return hh*3600 + mm*60;
+      }
+      var low = parseInt(v.slice(-2),10) || 0;    // 末两位为秒，其余为分
+      var high = v.length > 2 ? (parseInt(v.slice(0,-2),10) || 0) : 0;
+      return high*60 + low;
+    }
+    return null;
+  }
+
+  /* ---------- 格式化 ---------- */
+  function fmtTime(sec, forceHour){
+    sec = Math.round(sec);
+    var h = Math.floor(sec/3600), m = Math.floor(sec%3600/60), s = sec%60;
+    if(h > 0 || forceHour) return h + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+    return m + ":" + String(s).padStart(2,"0");
+  }
+  function fmtPace(secPerKm){
+    secPerKm = Math.round(secPerKm);
+    var m = Math.floor(secPerKm/60), s = secPerKm%60;
+    return m + "'" + String(s).padStart(2,"0") + "\"";
+  }
+  function todayStr(){
+    var d = new Date(), p = function(n){ return String(n).padStart(2,"0"); };
+    return d.getFullYear() + "-" + p(d.getMonth()+1) + "-" + p(d.getDate());
+  }
+  function nowStr(){
+    var d = new Date(), p = function(n){ return String(n).padStart(2,"0"); };
+    return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes());
+  }
+
+  /* ---------- 渲染：PB 概览 ---------- */
+  function renderPB(list){
+    var grid = $("pbGrid"), empty = $("pbEmpty");
+    // 每个项目取最快一次
+    var bests = {};
+    list.forEach(function(r){
+      if(!bests[r.event] || r.seconds < bests[r.event].seconds) bests[r.event] = r;
+    });
+    var keys = Object.keys(bests).sort(function(a,b){
+      return (EVENTS[a] ? EVENTS[a].dist : 0) - (EVENTS[b] ? EVENTS[b].dist : 0);
+    });
+    if(!keys.length){
+      grid.innerHTML = ""; empty.style.display = ""; return;
+    }
+    empty.style.display = "none";
+    grid.innerHTML = keys.map(function(k){
+      var r = bests[k], E = EVENTS[k];
+      var paceTxt = E ? fmtPace(r.seconds / E.dist) + "/km" : "";
+      return "<div class='pb-box'>"
+        + "<div class='name'>" + (E ? E.name : k) + "</div>"
+        + "<div class='val'>" + fmtTime(r.seconds, E && E.useHour) + "</div>"
+        + "<div class='pace'>" + paceTxt + "</div>"
+        + "</div>";
+    }).join("");
+  }
+
+  /* ---------- 渲染：趋势折线（内联 SVG） ---------- */
+  function drawChart(){
+    var ev = $("chartEvent").value;
+    var E = EVENTS[ev];
+    var all = load().filter(function(r){ return r.event === ev; });
+    var svg = $("chart"), emptyTip = $("chartEmpty"), stat = $("chartStat");
+
+    if(all.length < 2){
+      svg.style.display = "none";
+      emptyTip.style.display = "";
+      emptyTip.textContent = all.length === 1
+        ? "只有 1 条记录，再记一次就能看到趋势曲线。"
+        : "这个项目还没有记录。";
+      stat.textContent = "";
+      return;
+    }
+    svg.style.display = ""; emptyTip.style.display = "none";
+
+    // 按日期升序；同一天按记录创建时间
+    var pts = all.slice().sort(function(a,b){
+      if(a.date === b.date) return (a.created_at||"") < (b.created_at||"") ? -1 : 1;
+      return a.date < b.date ? -1 : 1;
+    });
+
+    // 画布宽度跟随容器：viewBox 宽度 = 实际像素宽度，SVG 内的字号就不会被整体缩放
+    var W = Math.max(300, Math.floor($("chartWrap").clientWidth) || 640);
+    var H = W < 520 ? 230 : 280;
+    var padL = W < 520 ? 44 : 54, padR = 18, padT = 26, padB = 46;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+
+    var min = Math.min.apply(null, pts.map(function(p){ return p.seconds; }));
+    var max = Math.max.apply(null, pts.map(function(p){ return p.seconds; }));
+    if(max - min < 1){ max = min + 1; }                 // 全部同成绩时给一点高度
+    var spanTop = (max - min) * 0.18 + 2;              // 上下留白，避免点贴边
+    var yTop = min - spanTop, yBot = max + spanTop;
+
+    // 秒 → y：成绩越小（越快）越靠上
+    function yOf(sec){ return padT + (sec - yTop) / (yBot - yTop) * plotH; }
+    // 索引 → x：均匀分布，日期标在下方
+    function xOf(i){ return pts.length === 1 ? padL + plotW/2 : padL + i / (pts.length - 1) * plotW; }
+
+    var grid = "", label = "";
+    // 三条横向网格线（快 / 中 / 慢）
+    [0, 0.5, 1].forEach(function(t){
+      var sec = yTop + (yBot - yTop) * t;
+      var y = yOf(sec);
+      grid += "<line x1='" + padL + "' y1='" + y.toFixed(1) + "' x2='" + (W-padR) + "' y2='" + y.toFixed(1) + "' stroke='#e6effc' stroke-width='1'/>";
+      label += "<text x='" + (padL-8) + "' y='" + (y+4).toFixed(1) + "' text-anchor='end' font-size='12' fill='#5a6b85'>"
+             + fmtTime(sec, E.useHour) + "</text>";
+    });
+
+    // 折线路径
+    var d = pts.map(function(p,i){
+      return (i ? "L" : "M") + xOf(i).toFixed(1) + " " + yOf(p.seconds).toFixed(1);
+    }).join(" ");
+    // 渐变填充（面积）
+    var area = "M" + xOf(0).toFixed(1) + " " + (padT+plotH) + " "
+      + pts.map(function(p,i){ return "L" + xOf(i).toFixed(1) + " " + yOf(p.seconds).toFixed(1); }).join(" ")
+      + " L" + xOf(pts.length-1).toFixed(1) + " " + (padT+plotH);
+
+    // 数据点：PB 点用绿色高亮
+    var dots = "", xlabels = "", maxLabels = 6;
+    var step = Math.ceil(pts.length / maxLabels);
+    pts.forEach(function(p,i){
+      var cx = xOf(i), cy = yOf(p.seconds);
+      var isPB = p.seconds === min;
+      dots += "<circle cx='" + cx.toFixed(1) + "' cy='" + cy.toFixed(1) + "' r='" + (isPB?5.5:4) + "'"
+            + " fill='" + (isPB?"#16a34a":"#1668dc") + "' stroke='#fff' stroke-width='2'/>";
+      // 只标首尾和 PB 的数值，避免挤在一起
+      if(isPB || i === pts.length-1){
+        dots += "<text x='" + cx.toFixed(1) + "' y='" + (cy-11).toFixed(1) + "' text-anchor='middle'"
+              + " font-size='11.5' font-weight='700' fill='" + (isPB?"#16a34a":"#1668dc") + "'>"
+              + fmtTime(p.seconds, E.useHour) + "</text>";
+      }
+      if(i % step === 0 || i === pts.length-1){
+        var mmdd = String(p.date||"").slice(5).replace("-","/");
+        xlabels += "<text x='" + cx.toFixed(1) + "' y='" + (H-padB+20) + "' text-anchor='middle'"
+                 + " font-size='11' fill='#5a6b85'>" + mmdd + "</text>";
+      }
+    });
+
+    svg.innerHTML = ""
+      + "<rect x='0' y='0' width='" + W + "' height='" + H + "' fill='none'/>"
+      + grid
+      + "<path d='" + area + "' fill='rgba(61,139,253,.10)'/>"
+      + "<path d='" + d + "' fill='none' stroke='#1668dc' stroke-width='2.4' stroke-linejoin='round' stroke-linecap='round'/>"
+      + dots + label + xlabels
+      + "<line x1='" + padL + "' y1='" + (padT+plotH) + "' x2='" + (W-padR) + "' y2='" + (padT+plotH) + "' stroke='#c9dcf7' stroke-width='1'/>";
+
+    // 趋势统计：最快、最慢、提升
+    var first = pts[0].seconds, last = pts[pts.length-1].seconds;
+    var diff = first - last;                       // 正数=变快
+    var dir = diff > 0 ? "快了 " : (diff < 0 ? "慢了 " : "持平 ");
+    stat.innerHTML = "最快 <b>" + fmtTime(min, E.useHour) + "</b> · 共 " + pts.length + " 条 · 从第一条到现在"
+      + (diff === 0 ? "成绩持平" : dir + "<b>" + fmtTime(Math.abs(diff)) + "</b>");
+  }
+
+  /* ---------- 渲染：全部记录列表 ---------- */
+  function renderList(){
+    var list = load().slice().sort(function(a,b){
+      if(a.date === b.date) return (b.created_at||"") < (a.created_at||"") ? -1 : 1;
+      return a.date < b.date ? 1 : -1;             // 新的在前
+    });
+    var wrap = $("recList"), empty = $("listEmpty");
+    if(!list.length){ wrap.innerHTML = ""; empty.style.display = ""; return; }
+    empty.style.display = "none";
+
+    var bests = {};
+    list.forEach(function(r){
+      if(!bests[r.event] || r.seconds < bests[r.event].seconds) bests[r.event] = r;
+    });
+
+    wrap.innerHTML = list.map(function(r){
+      var E = EVENTS[r.event] || { name:r.event, dist:1, useHour:false };
+      var isPB = bests[r.event] && bests[r.event].id === r.id;
+      var tagCls = r.type === "race" ? "tag race" : (r.type === "train" ? "tag train" : "tag");
+      var sub = [];
+      if(E.dist && E.dist !== 1) sub.push(fmtPace(r.seconds / E.dist) + "/km");
+      sub.push((r.note || "").trim() ? r.note : "");
+      return "<div class='rec-row'>"
+        + "<div class='rec-main'>"
+          + "<div class='rec-top'>"
+            + "<span class='ev'>" + E.name + "</span>"
+            + "<span class='rs'>" + fmtTime(r.seconds, E.useHour) + "</span>"
+            + "<span class='" + tagCls + "'>" + (TYPE_TEXT[r.type] || "训练") + "</span>"
+            + (isPB ? "<span class='tag pb'>PB</span>" : "")
+          + "</div>"
+          + "<div class='rec-sub'>" + r.date + (sub[0] ? " · " + sub[0] : "") + (sub[1] ? " · " + sub[1] : "") + "</div>"
+        + "</div>"
+        + "<button class='del-btn' data-id='" + r.id + "' aria-label='删除这条记录'>×</button>"
+        + "</div>";
+    }).join("");
+  }
+
+  /* ---------- 全部刷新 ---------- */
+  function renderAll(){
+    var list = load();
+    renderPB(list);
+    drawChart();
+    renderList();
+  }
+
+  /* ---------- 表单提交 ---------- */
+  function updateHint(){
+    var E = EVENTS[$("event").value];
+    $("result").placeholder = E.useHour ? "如 320 或 3:20" : "如 340 或 3:40";
+    $("resultHint").textContent = E.useHour
+      ? "半马 / 全马按「时:分」输入：填 320 就是 3 小时 20 分；带秒可填 32045（3:20:45）或 3:20:45"
+      : "填 340 就是 3 分 40 秒；也支持 3:40、3分40、205（2:05）";
+  }
+
+  $("saveBtn").addEventListener("click", function(){
+    var ev = $("event").value;
+    var E = EVENTS[ev];
+    var sec = parseTime($("result").value, E.useHour);
+    var err = $("errMsg");
+    err.textContent = "";
+
+    if(sec === null){
+      err.textContent = E.useHour
+        ? "成绩看不懂：半马/全马填 320（3:20:00），或 3:20、3:20:45。"
+        : "成绩看不懂：填 340 就是 3:40，也支持 3:40、3分40。";
+      return;
+    }
+    if(sec <= 0){ err.textContent = "成绩要大于 0"; return; }
+    if(sec < E.lo || sec > E.hi){
+      err.textContent = E.name + " 的成绩看起来不太合理，请检查是不是多填或少填了一位。";
+      return;
+    }
+
+    var list = load();
+    list.push({
+      id: "r" + Date.now() + Math.floor(Math.random()*1000),
+      event: ev,
+      seconds: sec,
+      date: $("date").value || todayStr(),
+      type: $("type").value,
+      note: ($("note").value || "").trim(),
+      created_at: nowStr()
+    });
+    save(list);
+
+    // 保存后把趋势图切到刚记录的项目，避免“记了 1000 米、图还停在 800 米”的错位
+    $("chartEvent").value = ev;
+
+    // 保存后清空成绩与备注，日期保留方便连续补录
+    $("result").value = "";
+    $("note").value = "";
+    err.style.color = "var(--green)";
+    err.textContent = "已保存： " + E.name + " " + fmtTime(sec, E.useHour);
+    setTimeout(function(){ err.style.color = ""; err.textContent = ""; }, 2200);
+
+    renderAll();
+  });
+
+  /* 回车直接保存 */
+  $("result").addEventListener("keydown", function(e){
+    if(e.key === "Enter"){ e.preventDefault(); $("saveBtn").click(); }
+  });
+
+  /* ---------- 删除记录（事件委托） ---------- */
+  $("recList").addEventListener("click", function(e){
+    var btn = e.target.closest(".del-btn");
+    if(!btn) return;
+    var id = btn.getAttribute("data-id");
+    if(!confirm("确定删除这条成绩记录吗？删除后无法恢复。")) return;
+    save(load().filter(function(r){ return r.id !== id; }));
+    renderAll();
+  });
+
+  /* ---------- 切换趋势图项目 ---------- */
+  $("chartEvent").addEventListener("change", drawChart);
+  $("event").addEventListener("change", updateHint);
+
+  /* 窗口尺寸变化（如手机横竖屏切换）时重绘图表，避免文字被拉伸 */
+  var resizeTimer = null;
+  window.addEventListener("resize", function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(drawChart, 220);
+  });
+
+  /* ---------- 初始化 ---------- */
+  $("date").value = todayStr();
+  updateHint();
+  renderAll();
+  // 默认把趋势图切到已有记录的项目，避免一进来就是空图
+  (function(){
+    var list = load();
+    if(list.length){
+      var has = {};
+      list.forEach(function(r){ has[r.event] = true; });
+      if(has[$("event").value]) $("chartEvent").value = $("event").value;
+    }
+    drawChart();
+  })();
+
+  $("year").textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
