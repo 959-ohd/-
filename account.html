@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>我的 · 跑道笔记</title>
-<meta name="description" content="跑道笔记我的：一键备份跑步打卡与收藏的训练计划，换手机时粘贴备份码即可恢复。无需注册、不联网、数据只存在本机。">
+<meta name="description" content="跑道笔记我的：一键备份跑步打卡、成绩记录与收藏的训练计划，换手机时粘贴备份码即可恢复。无需注册、不联网、数据只存在本机。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231668dc'/%3E%3Cg stroke='white' stroke-width='4' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 50 L30 18'/%3E%3Cpath d='M27 50 L33 18'/%3E%3Cpath d='M40 50 L36 18'/%3E%3Cpath d='M53 50 L39 18'/%3E%3C/g%3E%3C/svg%3E">
 <style>
 /* ===== 我的数据 / 备份恢复（蓝白运动风，纯本地，无服务器） ===== */
@@ -34,11 +34,15 @@ body{
 .head-card .sub{ font-size:13.5px; color:var(--muted); }
 
 /* 数据概况 */
-.stat-row{ display:flex; gap:10px; margin-top:16px; }
-.stat-box{ flex:1; background:var(--blue-soft); border-radius:11px; padding:12px 8px; text-align:center; }
+.stat-row{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+.stat-box{ flex:1 1 0; min-width:calc(25% - 10px); background:var(--blue-soft); border-radius:11px; padding:12px 8px; text-align:center; }
 .stat-box .n{ font-size:20px; font-weight:800; color:var(--blue-deep); }
 .stat-box .n small{ font-size:12px; font-weight:700; color:var(--blue); }
 .stat-box .l{ font-size:12px; color:var(--muted); margin-top:2px; }
+/* 手机上四格统计改 2×2，避免每个挤成一条 */
+@media (max-width:560px){
+  .stat-box{ min-width:calc(50% - 5px); }
+}
 
 .section-title{ font-size:15px; font-weight:800; color:var(--blue-deep); margin:0 0 6px; }
 .step-tag{ display:inline-block; background:var(--blue); color:#fff; font-size:12px; font-weight:700;
@@ -103,11 +107,12 @@ textarea:focus{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(22,104,220,.
   <!-- 概况 -->
   <section class="card head-card">
     <h2>本机数据与备份</h2>
-    <p class="sub">你的打卡和收藏都保存在当前设备的浏览器里，不注册、不联网。换手机时，用下面的“备份 / 恢复”搬走即可。</p>
+    <p class="sub">你的打卡、成绩和收藏都保存在当前设备的浏览器里，不注册、不联网。换手机时，用下面的“备份 / 恢复”搬走即可。</p>
     <div class="stat-row">
       <div class="stat-box"><div class="n" id="statCount">0<small> 次</small></div><div class="l">跑步打卡</div></div>
       <div class="stat-box"><div class="n" id="statKm">0<small> km</small></div><div class="l">总里程</div></div>
       <div class="stat-box"><div class="n" id="statPlan">0<small> 份</small></div><div class="l">收藏计划</div></div>
+      <div class="stat-box"><div class="n" id="statRecord">0<small> 条</small></div><div class="l">成绩记录</div></div>
     </div>
   </section>
 
@@ -168,6 +173,10 @@ textarea:focus{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(22,104,220,.
     $("statCount").innerHTML = checkins.length + '<small> 次</small>';
     $("statKm").innerHTML = km.toFixed(1) + '<small> km</small>';
     $("statPlan").innerHTML = plans.length + '<small> 份</small>';
+    // 成绩记录条数（records.html 写入的同一个键）
+    var records = [];
+    try{ records = JSON.parse(localStorage.getItem('track_notes_records_v1')) || []; }catch(e){ records = []; }
+    $("statRecord").innerHTML = (Array.isArray(records) ? records.length : 0) + '<small> 条</small>';
 
     if(!plans.length){
       $("planList").innerHTML = '<div class="empty-line">还没有收藏，去 <a href="plan-generator.html">训练计划生成器</a> 生成后点“收藏计划”。</div>';
@@ -234,7 +243,8 @@ textarea:focus{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(22,104,220,.
       var r = PDStore.mergeImport(obj);
       render();
       msg.className = "msg ok";
-      msg.textContent = "恢复成功：新增打卡 " + r.checkinsAdded + " 条、收藏计划 " + r.plansAdded + " 份（重复的已自动跳过）。";
+      msg.textContent = "恢复成功：新增打卡 " + r.checkinsAdded + " 条、成绩 " + (r.recordsAdded || 0)
+        + " 条、自查 " + (r.recoveryAdded || 0) + " 次、收藏计划 " + r.plansAdded + " 份（重复的已自动跳过）。";
     }catch(e){
       msg.className = "msg err";
       msg.textContent = e.message || "恢复失败";
