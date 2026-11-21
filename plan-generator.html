@@ -102,19 +102,6 @@ body{
 .custom-card li::before{ content:""; position:absolute; left:3px; top:10px; width:7px; height:7px; border-radius:50%; background:#9ec5ff; }
 .custom-card .mail-btn{ display:inline-block; background:#fff; color:var(--blue-deep); font-weight:700; font-size:14.5px; padding:10px 24px; border-radius:10px; text-decoration:none; }
 
-/* 打赏卡 */
-.donate-card{ text-align:center; }
-.donate-card h3{ font-size:17px; font-weight:800; color:var(--blue-deep); margin-bottom:6px; }
-.donate-card p{ font-size:14px; color:var(--muted); max-width:560px; margin:0 auto 6px; }
-.qr-box{
-  width:184px; height:184px; margin:16px auto 8px; border:2px dashed var(--blue); border-radius:12px;
-  background:#f8fbff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--muted);
-}
-.qr-box svg{ width:56px; height:56px; stroke:var(--blue); fill:none; stroke-width:1.6; }
-.qr-box .t1{ font-size:13.5px; font-weight:700; color:var(--blue-deep); }
-.qr-box .t2{ font-size:11.5px; padding:0 14px; }
-.donate-card .vol{ font-size:12px; color:var(--muted); margin-top:6px; }
-
 .site-footer{ text-align:center; padding:10px 10px 30px; font-size:12.5px; color:var(--muted); }
 @media (max-width:560px){
   .form-grid{ grid-template-columns:1fr; }
@@ -210,17 +197,6 @@ body{
     </ul>
     <p>定制流程：邮件说明你的项目、成绩、每周能练几天、有无伤病 → 我们评估后回复方案与费用。</p>
     <a class="mail-btn" href="mailto:765041959@qq.com?subject=跑道笔记-一对一训练计划定制">联系定制：765041959@qq.com</a>
-  </section>
-
-  <!-- 打赏 -->
-  <section class="card donate-card">
-    <h3>请作者喝杯水</h3>
-    <p>跑道笔记的工具、知识库和训练计划都免费、无广告，由几个学生在课余时间维护。</p>
-    <p>如果它真的帮到了你的训练，你可以自愿打赏一瓶水，支持我们继续更新；不打赏也完全不影响使用任何功能。</p>
-
-    <!-- 收款码：已接入同目录 qrcode.png（微信收款码）；想更换，直接替换该图片文件即可。 -->
-    <img class="qr-img" src="qrcode.png" alt="微信收款码" style="width:184px;height:184px;object-fit:contain;border-radius:12px;border:1px solid #e3edfb;background:#fff;margin:18px auto 10px;display:block">
-    <p class="vol">自愿支持 · 金额随意 · 感谢每一位为跑道笔记补水的跑者</p>
   </section>
 
 </main>
